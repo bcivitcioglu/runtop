@@ -1,0 +1,21 @@
+/runtop
+/demos/
+.DS_Store
+.venv/
+dist/
+__pycache__/
+.pytest_cache/
+snapshot_report.html
+*.cast
+scripts/.fixture-renames.json
+assets/*/frames/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# Private development notes and measurements (never commit)
+/docs/internal/
+/.local/
+/ROADMAP.md
+/CODE_REVIEW.md
+*.log

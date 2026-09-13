@@ -1,0 +1,219 @@
+{
+  "AppArmorProfile": "",
+  "Args": [
+    "-c",
+    "while true; do printf 'tty line \\033[32mgreen\\033[0m\\n'; sleep 0.5; done"
+  ],
+  "Config": {
+    "AttachStderr": false,
+    "AttachStdin": false,
+    "AttachStdout": false,
+    "Cmd": [
+      "-c",
+      "while true; do printf 'tty line \\033[32mgreen\\033[0m\\n'; sleep 0.5; done"
+    ],
+    "Domainname": "",
+    "Entrypoint": [
+      "sh"
+    ],
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "NGINX_VERSION=1.31.5",
+      "PKG_RELEASE=<redacted>",
+      "DYNPKG_RELEASE=<redacted>",
+      "NJS_VERSION=<redacted>",
+      "NJS_RELEASE=<redacted>",
+      "ACME_VERSION=<redacted>"
+    ],
+    "ExposedPorts": {
+      "80/tcp": {}
+    },
+    "Hostname": "72965dd89a60",
+    "Image": "nginx:alpine",
+    "Labels": {
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "StopSignal": "SIGQUIT",
+    "Tty": true,
+    "User": "",
+    "Volumes": null,
+    "WorkingDir": "/"
+  },
+  "Created": "2026-09-12T20:48:37.445837286Z",
+  "Driver": "overlayfs",
+  "ExecIDs": null,
+  "HostConfig": {
+    "AutoRemove": false,
+    "Binds": null,
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceWriteIOps": [],
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "CapAdd": null,
+    "CapDrop": null,
+    "Cgroup": "",
+    "CgroupParent": "",
+    "CgroupnsMode": "private",
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "ContainerIDFile": "",
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpuShares": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "Devices": [],
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IOMaximumBandwidth": 0,
+    "IOMaximumIOps": 0,
+    "IpcMode": "private",
+    "Isolation": "",
+    "Links": null,
+    "LogConfig": {
+      "Config": {},
+      "Type": "json-file"
+    },
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "Memory": 0,
+    "MemoryReservation": 0,
+    "MemorySwap": 0,
+    "MemorySwappiness": null,
+    "NanoCpus": 0,
+    "NetworkMode": "bridge",
+    "OomKillDisable": null,
+    "OomScoreAdj": 200,
+    "PidMode": "",
+    "PidsLimit": null,
+    "PortBindings": {},
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ],
+    "ReadonlyRootfs": false,
+    "RestartPolicy": {
+      "MaximumRetryCount": 0,
+      "Name": "no"
+    },
+    "Runtime": "runc",
+    "SecurityOpt": null,
+    "ShmSize": 67108864,
+    "UTSMode": "",
+    "Ulimits": null,
+    "UsernsMode": "",
+    "VolumeDriver": "",
+    "VolumesFrom": null
+  },
+  "HostnamePath": "/home/demo.guest/.local/share/docker/containers/72965dd89a60ce638f001047667e611be4b32b73f42e138716d1b97614e384d0/hostname",
+  "HostsPath": "/home/demo.guest/.local/share/docker/containers/72965dd89a60ce638f001047667e611be4b32b73f42e138716d1b97614e384d0/hosts",
+  "Id": "72965dd89a60ce638f001047667e611be4b32b73f42e138716d1b97614e384d0",
+  "Image": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+  "ImageManifestDescriptor": {
+    "annotations": {
+      "com.docker.official-images.bashbrew.arch": "arm64v8",
+      "org.opencontainers.image.base.digest": "sha256:a3ba66b4e5d47c0135edebc8894e2337092db3c7c2228d9ee178c69e863253cc",
+      "org.opencontainers.image.base.name": "nginx:1.31.5-alpine-slim",
+      "org.opencontainers.image.created": "2026-09-02T21:07:11Z",
+      "org.opencontainers.image.revision": "c5b3ce398e37067d93ab1edf803e9b96a1116092",
+      "org.opencontainers.image.source": "https://github.com/nginx/docker-nginx.git#c5b3ce398e37067d93ab1edf803e9b96a1116092:mainline/alpine",
+      "org.opencontainers.image.url": "https://hub.docker.com/_/nginx",
+      "org.opencontainers.image.version": "1.31.5-alpine"
+    },
+    "digest": "sha256:ac1c5b25bb178c48d4f758b8a67021b45a5e6b056b8407364f060e162943f08b",
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "platform": {
+      "architecture": "arm64",
+      "os": "linux",
+      "variant": "v8"
+    },
+    "size": 2497
+  },
+  "LogPath": "/home/demo.guest/.local/share/docker/containers/72965dd89a60ce638f001047667e611be4b32b73f42e138716d1b97614e384d0/72965dd89a60ce638f001047667e611be4b32b73f42e138716d1b97614e384d0-json.log",
+  "MountLabel": "",
+  "Mounts": [],
+  "Name": "/lsfx-tty",
+  "NetworkSettings": {
+    "Networks": {
+      "bridge": {
+        "Aliases": null,
+        "DNSNames": null,
+        "DriverOpts": null,
+        "EndpointID": "bac8cb9016977bb1a285d357354a773f00f57ba51d7bd8282baf51f630d35acc",
+        "Gateway": "172.17.0.1",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "GwPriority": 0,
+        "IPAMConfig": null,
+        "IPAddress": "172.17.0.4",
+        "IPPrefixLen": 16,
+        "IPv6Gateway": "",
+        "Links": null,
+        "MacAddress": "3e:29:15:73:a0:48",
+        "NetworkID": "75500c301081265b9edcf67aacb5b5a6cb65bd466b504fa59c83c88dfec2b0c2"
+      }
+    },
+    "Ports": {
+      "80/tcp": null
+    },
+    "SandboxID": "06165523404df6d4f1e2cb1cd22e47b2bd6974cbce5787afdcf4a007d50dd6d1",
+    "SandboxKey": "/run/user/501/docker/netns/06165523404d"
+  },
+  "Path": "sh",
+  "Platform": "linux",
+  "ProcessLabel": "",
+  "ResolvConfPath": "/home/demo.guest/.local/share/docker/containers/72965dd89a60ce638f001047667e611be4b32b73f42e138716d1b97614e384d0/resolv.conf",
+  "RestartCount": 0,
+  "State": {
+    "Dead": false,
+    "Error": "",
+    "ExitCode": 0,
+    "FinishedAt": "0001-01-01T00:00:00Z",
+    "OOMKilled": false,
+    "Paused": false,
+    "Pid": 30535,
+    "Restarting": false,
+    "Running": true,
+    "StartedAt": "2026-09-12T20:48:37.46332267Z",
+    "Status": "running"
+  },
+  "Storage": {
+    "RootFS": {
+      "Snapshot": {
+        "Name": "overlayfs"
+      }
+    }
+  }
+}

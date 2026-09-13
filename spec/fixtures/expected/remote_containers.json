@@ -1,0 +1,69 @@
+[
+  {
+    "id": "fbafb98a5f82",
+    "name": "lsfx-plain",
+    "image": "nginx:alpine",
+    "state": "created",
+    "status": "Created",
+    "health": null,
+    "exit_code": null,
+    "project": "",
+    "service": "",
+    "ports": []
+  },
+  {
+    "id": "72965dd89a60",
+    "name": "lsfx-tty",
+    "image": "nginx:alpine",
+    "state": "running",
+    "status": "Up 8 seconds",
+    "health": null,
+    "exit_code": null,
+    "project": "",
+    "service": "",
+    "ports": [
+      "80"
+    ]
+  },
+  {
+    "id": "efc9bc5455f8",
+    "name": "lsfx-api",
+    "image": "nginx:alpine",
+    "state": "running",
+    "status": "Up 8 seconds (healthy)",
+    "health": "healthy",
+    "exit_code": null,
+    "project": "shop",
+    "service": "api",
+    "ports": [
+      "80",
+      "13000->3000"
+    ]
+  },
+  {
+    "id": "9f2f1ea22598",
+    "name": "lsfx-web",
+    "image": "nginx:alpine",
+    "state": "running",
+    "status": "Up 8 seconds",
+    "health": null,
+    "exit_code": null,
+    "project": "shop",
+    "service": "web",
+    "ports": [
+      "18080->80"
+    ]
+  },
+  {
+    "id": "c1d9d3114110",
+    "name": "lsfx-worker",
+    "image": "nginx:alpine",
+    "state": "exited",
+    "status": "Exited (1) 8 seconds ago",
+    "health": null,
+    "exit_code": 1,
+    "project": "shop",
+    "service": "worker",
+    "ports": []
+  }
+]

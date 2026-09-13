@@ -1,0 +1,17 @@
+{
+  "oneshot_first": {
+    "cpu_percent": null,
+    "mem_bytes": 860160,
+    "mem_limit_bytes": 4084563968
+  },
+  "oneshot_second_vs_first": {
+    "cpu_percent": 6.6859,
+    "mem_bytes": 2031616,
+    "mem_limit_bytes": 4084563968
+  },
+  "stream_false": {
+    "cpu_percent": 8.2853,
+    "mem_bytes": 1093632,
+    "mem_limit_bytes": 4084563968
+  }
+}

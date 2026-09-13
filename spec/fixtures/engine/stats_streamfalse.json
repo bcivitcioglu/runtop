@@ -1,0 +1,100 @@
+{
+  "blkio_stats": {
+    "io_merged_recursive": null,
+    "io_queue_recursive": null,
+    "io_service_bytes_recursive": null,
+    "io_service_time_recursive": null,
+    "io_serviced_recursive": null,
+    "io_time_recursive": null,
+    "io_wait_time_recursive": null,
+    "sectors_recursive": null
+  },
+  "cpu_stats": {
+    "cpu_usage": {
+      "total_usage": 620924000,
+      "usage_in_kernelmode": 560346000,
+      "usage_in_usermode": 60578000
+    },
+    "online_cpus": 4,
+    "system_cpu_usage": 45893080000000,
+    "throttling_data": {
+      "periods": 0,
+      "throttled_periods": 0,
+      "throttled_time": 0
+    }
+  },
+  "id": "efc9bc5455f8b53cd69fdceb737234e9383f50dd04b81214bd5ae6e6db58db34",
+  "memory_stats": {
+    "limit": 4084563968,
+    "stats": {
+      "active_anon": 61440,
+      "active_file": 0,
+      "anon": 122880,
+      "anon_thp": 0,
+      "file": 0,
+      "file_dirty": 0,
+      "file_mapped": 0,
+      "file_writeback": 0,
+      "inactive_anon": 0,
+      "inactive_file": 0,
+      "kernel_stack": 32768,
+      "pgactivate": 0,
+      "pgdeactivate": 0,
+      "pgfault": 22249,
+      "pglazyfree": 0,
+      "pglazyfreed": 0,
+      "pgmajfault": 0,
+      "pgrefill": 0,
+      "pgscan": 0,
+      "pgsteal": 0,
+      "shmem": 0,
+      "slab": 241560,
+      "slab_reclaimable": 78240,
+      "slab_unreclaimable": 163320,
+      "sock": 0,
+      "thp_collapse_alloc": 0,
+      "thp_fault_alloc": 28,
+      "unevictable": 0,
+      "workingset_activate": 0,
+      "workingset_nodereclaim": 0,
+      "workingset_refault": 0
+    },
+    "usage": 1093632
+  },
+  "name": "/lsfx-api",
+  "networks": {
+    "eth0": {
+      "rx_bytes": 1148,
+      "rx_dropped": 0,
+      "rx_errors": 0,
+      "rx_packets": 14,
+      "tx_bytes": 126,
+      "tx_dropped": 0,
+      "tx_errors": 0,
+      "tx_packets": 3
+    }
+  },
+  "num_procs": 0,
+  "os_type": "linux",
+  "pids_stats": {
+    "current": 2,
+    "limit": 4106
+  },
+  "precpu_stats": {
+    "cpu_usage": {
+      "total_usage": 537657000,
+      "usage_in_kernelmode": 491176000,
+      "usage_in_usermode": 46480000
+    },
+    "online_cpus": 4,
+    "system_cpu_usage": 45889060000000,
+    "throttling_data": {
+      "periods": 0,
+      "throttled_periods": 0,
+      "throttled_time": 0
+    }
+  },
+  "preread": "2026-09-12T20:48:44.804206615Z",
+  "read": "2026-09-12T20:48:45.815802735Z",
+  "storage_stats": {}
+}

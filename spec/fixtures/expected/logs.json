@@ -1,0 +1,91 @@
+{
+  "mux": [
+    {
+      "stream": "stderr",
+      "text": "WARN slow 30"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 30 ok"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 31"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 31 ok"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 32 ok"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 32"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 33"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 33 ok"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 34"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 34 ok"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 35 ok"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 35"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 36"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 36 ok"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 37 ok"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 37"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 38 ok"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 38"
+    },
+    {
+      "stream": "stdout",
+      "text": "INFO request 39 ok"
+    },
+    {
+      "stream": "stderr",
+      "text": "WARN slow 39"
+    }
+  ],
+  "tty": [
+    "tty line \u001b[32mgreen\u001b[0m",
+    "tty line \u001b[32mgreen\u001b[0m",
+    "tty line \u001b[32mgreen\u001b[0m",
+    "tty line \u001b[32mgreen\u001b[0m",
+    "tty line \u001b[32mgreen\u001b[0m"
+  ]
+}

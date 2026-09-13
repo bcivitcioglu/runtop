@@ -1,0 +1,95 @@
+[project]
+name = "runtop"
+version = "0.1.0"
+description = "A TUI Docker workspace in the style of a desktop app, for Lima and Colima VMs"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dynamic = ["readme"]
+dependencies = [
+    "httpx>=0.28.1",
+    "textual>=8.2.8,<9",
+    "typing-extensions>=4.4.0",
+]
+keywords = ["docker", "lima", "colima", "tui", "textual", "containers"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Systems Administration",
+]
+
+[project.urls]
+Homepage = "https://github.com/bcivitcioglu/runtop"
+Issues = "https://github.com/bcivitcioglu/runtop/issues"
+
+[project.scripts]
+runtop = "runtop.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27", "hatch-fancy-pypi-readme>=24.1"]
+build-backend = "hatchling.build"
+
+# PyPI renders the README without the repo around it: point relative images at raw GitHub
+# files and relative links at the GitHub file view. README.md itself keeps relative paths.
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '(!\[[^\]]*\]\()(?!https?://)'
+replacement = '\1https://raw.githubusercontent.com/bcivitcioglu/runtop/master/'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '((?<!!)\[[^\]]*\]\()(?!https?://|#)'
+replacement = '\1https://github.com/bcivitcioglu/runtop/blob/master/'
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/runtop"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"spec/fixtures/snapshots/demo.json" = "runtop/resources/demo.json"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/runtop", "LICENSE", "README.md", "pyproject.toml", "spec/fixtures/snapshots/demo.json"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "pytest-textual-snapshot>=1.0.0",
+    "ruff>=0.16.7",
+    "ty>=0.0.80",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["live: talks to a real Lima docker VM (RUNTOP_LIVE=1)"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests"]
+extend-exclude = ["scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "ANN"]
+ignore = ["RUF001", "RUF002", "RUF003", "RUF012", "SIM105", "SIM108"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.ty.rules]
+all = "error"

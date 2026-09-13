@@ -1,0 +1,61 @@
+{
+  "remote_ports": {
+    "0.0.0.0:8080->80/tcp, :::8080->80/tcp": [
+      "8080->80"
+    ],
+    "9000/tcp": [
+      "9000"
+    ],
+    "0.0.0.0:5432->5432/tcp, 5432/tcp": [
+      "5432->5432"
+    ],
+    "": [],
+    "0.0.0.0:13000->3000/tcp, :::13000->3000/tcp, 80/tcp": [
+      "80",
+      "13000->3000"
+    ]
+  },
+  "docker_size": {
+    "376MB": 376000000,
+    "70.9MB": 70900000,
+    "22.6kB": 22600,
+    "1.02GB": 1020000000,
+    "1.5TB": 1500000000000,
+    "0B": 0,
+    "512B": 512
+  },
+  "label_value": {
+    "com.docker.compose.project=shop,com.docker.compose.service=api": "shop",
+    "maintainer=x": ""
+  },
+  "demux_edge_cases": {
+    "blank_lines_and_unterminated_tail": [
+      {
+        "stream": "stdout",
+        "text": "a"
+      },
+      {
+        "stream": "stdout",
+        "text": ""
+      },
+      {
+        "stream": "stdout",
+        "text": "b"
+      },
+      {
+        "stream": "stderr",
+        "text": "err"
+      },
+      {
+        "stream": "stdout",
+        "text": "end"
+      }
+    ],
+    "tty_blank_lines": [
+      "one",
+      "",
+      "two",
+      "last"
+    ]
+  }
+}

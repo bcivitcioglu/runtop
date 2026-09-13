@@ -1,0 +1,129 @@
+[
+  {
+    "Containers": 0,
+    "Created": 1789239765,
+    "Descriptor": {
+      "digest": "sha256:8010ad1083cfa7baee173eedb020f4597813d207304bf7a497d2d01dd8936144",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "size": 1623
+    },
+    "Id": "sha256:8010ad1083cfa7baee173eedb020f4597813d207304bf7a497d2d01dd8936144",
+    "Labels": {},
+    "ParentId": "sha256:dd5be158969c3c3265e5de39d98523cac1bbc70afa24708dfd50ac73acf445ae",
+    "RepoDigests": [
+      "orbit@sha256:8010ad1083cfa7baee173eedb020f4597813d207304bf7a497d2d01dd8936144"
+    ],
+    "RepoTags": [
+      "orbit:conformance"
+    ],
+    "SharedSize": -1,
+    "Size": 376193270
+  },
+  {
+    "Containers": 0,
+    "Created": 1789239754,
+    "Descriptor": {
+      "digest": "sha256:941c6e460d5eae395fa91d79555a4890d5d93f2308745970096444d8987885b6",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "size": 2286
+    },
+    "Id": "sha256:941c6e460d5eae395fa91d79555a4890d5d93f2308745970096444d8987885b6",
+    "Labels": {},
+    "ParentId": "sha256:409e14cb24d2f517d08f56096767dcab35cd5ded6dfd0f81a4e2f3629674b04f",
+    "RepoDigests": [],
+    "RepoTags": [],
+    "SharedSize": -1,
+    "Size": 567449729
+  },
+  {
+    "Containers": 0,
+    "Created": 1788558367,
+    "Descriptor": {
+      "digest": "sha256:2bb3ebca0a796a155094a27773d290c4b074572e6107f171d88d086682fd2500",
+      "mediaType": "application/vnd.oci.image.index.v1+json",
+      "size": 2196
+    },
+    "Id": "sha256:2bb3ebca0a796a155094a27773d290c4b074572e6107f171d88d086682fd2500",
+    "Labels": {
+      "org.opencontainers.image.created": "2026-09-04T23:08:37.466Z",
+      "org.opencontainers.image.description": "An extremely fast Python package and project manager, written in Rust.",
+      "org.opencontainers.image.licenses": "Apache-2.0",
+      "org.opencontainers.image.revision": "3c979abda4530fe9bf3d92e9bcf5c5575e3b3126",
+      "org.opencontainers.image.source": "https://github.com/astral-sh/uv",
+      "org.opencontainers.image.title": "uv",
+      "org.opencontainers.image.url": "https://github.com/astral-sh/uv",
+      "org.opencontainers.image.version": "0.12.10"
+    },
+    "ParentId": "",
+    "RepoDigests": [
+      "ghcr.io/astral-sh/uv@sha256:2bb3ebca0a796a155094a27773d290c4b074572e6107f171d88d086682fd2500"
+    ],
+    "RepoTags": [
+      "ghcr.io/astral-sh/uv:0.12.10"
+    ],
+    "SharedSize": -1,
+    "Size": 70939319
+  },
+  {
+    "Containers": 5,
+    "Created": 1788383238,
+    "Descriptor": {
+      "digest": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+      "mediaType": "application/vnd.oci.image.index.v1+json",
+      "size": 10333
+    },
+    "Id": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+    "Labels": {
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "ParentId": "",
+    "RepoDigests": [
+      "nginx@sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3"
+    ],
+    "RepoTags": [
+      "nginx:alpine"
+    ],
+    "SharedSize": -1,
+    "Size": 102433602
+  },
+  {
+    "Containers": 0,
+    "Created": 1788220241,
+    "Descriptor": {
+      "digest": "sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285",
+      "mediaType": "application/vnd.oci.image.index.v1+json",
+      "size": 10373
+    },
+    "Id": "sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285",
+    "Labels": {},
+    "ParentId": "",
+    "RepoDigests": [
+      "python@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285"
+    ],
+    "RepoTags": [
+      "python:3.13-slim@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285"
+    ],
+    "SharedSize": -1,
+    "Size": 214966382
+  },
+  {
+    "Containers": 0,
+    "Created": 1787072435,
+    "Descriptor": {
+      "digest": "sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576",
+      "mediaType": "application/vnd.oci.image.index.v1+json",
+      "size": 10213
+    },
+    "Id": "sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576",
+    "Labels": {},
+    "ParentId": "",
+    "RepoDigests": [
+      "redis@sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576"
+    ],
+    "RepoTags": [
+      "redis:alpine"
+    ],
+    "SharedSize": -1,
+    "Size": 159573803
+  }
+]

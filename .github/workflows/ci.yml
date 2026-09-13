@@ -1,0 +1,31 @@
+name: ci
+on:
+  push:
+    branches: [master]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  full:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
+      - run: uv run ruff check
+      - run: uv run ty check --error-on-warning
+      - run: uv run pytest
+      - run: uv build
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-report-${{ matrix.os }}-${{ matrix.python }}
+          path: snapshot_report.html
+          if-no-files-found: ignore

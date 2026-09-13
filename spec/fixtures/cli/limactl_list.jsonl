@@ -1,0 +1,3 @@
+{"arch": "aarch64", "cpus": 4, "dir": "/Users/demo/.lima/docker", "disk": 107374182400, "memory": 4294967296, "name": "docker", "status": "Running", "vmType": "vz"}
+{"arch": "aarch64", "cpus": 4, "dir": "/Users/demo/.lima/acme-ci", "disk": 64424509440, "memory": 6442450944, "name": "acme-ci", "status": "Stopped", "vmType": "vz"}
+{"arch": "aarch64", "cpus": 2, "dir": "/Users/demo/.lima/orbit-ci", "disk": 21474836480, "memory": 2147483648, "name": "orbit-ci", "status": "Stopped", "vmType": "vz"}

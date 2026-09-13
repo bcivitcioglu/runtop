@@ -1,0 +1,44 @@
+[
+  {
+    "id": "941c6e460d5e",
+    "ref": "<none>:<none>",
+    "size_bytes": 567449729,
+    "containers": 0,
+    "dangling": true
+  },
+  {
+    "id": "8010ad1083cf",
+    "ref": "orbit:conformance",
+    "size_bytes": 376193270,
+    "containers": 0,
+    "dangling": false
+  },
+  {
+    "id": "9d2e5553305c",
+    "ref": "python:3.13-slim",
+    "size_bytes": 214966382,
+    "containers": 0,
+    "dangling": false
+  },
+  {
+    "id": "becdda6c7f4b",
+    "ref": "redis:alpine",
+    "size_bytes": 159573803,
+    "containers": 0,
+    "dangling": false
+  },
+  {
+    "id": "72ba65eb42c1",
+    "ref": "nginx:alpine",
+    "size_bytes": 102433602,
+    "containers": 5,
+    "dangling": false
+  },
+  {
+    "id": "2bb3ebca0a79",
+    "ref": "ghcr.io/astral-sh/uv:0.12.10",
+    "size_bytes": 70939319,
+    "containers": 0,
+    "dangling": false
+  }
+]

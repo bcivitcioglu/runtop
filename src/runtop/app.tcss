@@ -1,0 +1,72 @@
+/* runtop — theme variables only, so every Textual theme works. */
+
+Screen {
+    background: $surface;
+    layout: vertical;
+}
+
+#columns {
+    height: 1fr;
+}
+
+/* Middle column: the content. Slightly lifted from the side columns. */
+#middle {
+    width: 1fr;
+    height: 1fr;
+    background: $surface;
+    padding: 1 0 0 1;
+}
+
+#middle-head {
+    height: 1;
+    padding: 0 2 0 1;
+    margin-bottom: 1;
+}
+
+#filter {
+    width: 30;
+    height: 1;
+    border: none;
+    padding: 0 1;
+    background: $foreground 8%;
+    &:focus { background: $foreground 12%; }
+}
+
+#colhead {
+    margin-bottom: 0;
+}
+
+#switch {
+    height: 1fr;
+}
+
+/* Focused column: its heading lights up in the accent colour (calm, but unmistakable). */
+#middle.-focused MiddleTitle { color: $primary; }
+#detail.-focused #detail-title { color: $primary; }
+
+Footer {
+    background: $background;
+}
+
+/* Narrow layouts: detail pane folds away below 120 columns, sidebar below 90. */
+Screen.-medium #detail, Screen.-medium #split-right,
+Screen.-narrow #detail, Screen.-narrow #split-right,
+Screen.-narrow #sidebar, Screen.-narrow #split-left {
+    display: none;
+}
+Screen.-medium.-show-detail #detail, Screen.-medium.-show-detail #split-right {
+    display: block;
+}
+
+/* Command palette: a centred sheet, not a full-width banner. */
+CommandPalette > Vertical {
+    width: 100;
+    max-width: 92%;
+    margin-top: 4;
+}
+
+#data-warning { color: $warning; padding: 0 1; height: auto; }
+
+#image-actions { height: auto; margin-bottom: 1; }
+
+#recording-status { height: auto; padding: 0 1; color: $warning; background: $panel; display: none; }

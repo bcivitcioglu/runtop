@@ -1,0 +1,370 @@
+[
+  {
+    "Command": "/docker-entrypoint.sh nginx -g 'daemon off;'",
+    "Created": 1789246117,
+    "Health": {
+      "FailingStreak": 0,
+      "Status": "none"
+    },
+    "HostConfig": {
+      "NetworkMode": "bridge"
+    },
+    "Id": "fbafb98a5f82e291d15873d341401bf0518f9fc0587614d2649c8cdb3938b28c",
+    "Image": "nginx:alpine",
+    "ImageID": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+    "ImageManifestDescriptor": {
+      "annotations": {
+        "com.docker.official-images.bashbrew.arch": "arm64v8",
+        "org.opencontainers.image.base.digest": "sha256:a3ba66b4e5d47c0135edebc8894e2337092db3c7c2228d9ee178c69e863253cc",
+        "org.opencontainers.image.base.name": "nginx:1.31.5-alpine-slim",
+        "org.opencontainers.image.created": "2026-09-02T21:07:11Z",
+        "org.opencontainers.image.revision": "c5b3ce398e37067d93ab1edf803e9b96a1116092",
+        "org.opencontainers.image.source": "https://github.com/nginx/docker-nginx.git#c5b3ce398e37067d93ab1edf803e9b96a1116092:mainline/alpine",
+        "org.opencontainers.image.url": "https://hub.docker.com/_/nginx",
+        "org.opencontainers.image.version": "1.31.5-alpine"
+      },
+      "digest": "sha256:ac1c5b25bb178c48d4f758b8a67021b45a5e6b056b8407364f060e162943f08b",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux",
+        "variant": "v8"
+      },
+      "size": 2497
+    },
+    "Labels": {
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "Mounts": [],
+    "Names": [
+      "/lsfx-plain"
+    ],
+    "NetworkSettings": {
+      "Networks": {
+        "bridge": {
+          "Aliases": null,
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": ""
+        }
+      }
+    },
+    "Ports": [],
+    "State": "created",
+    "Status": "Created"
+  },
+  {
+    "Command": "sh -c 'while true; do printf 'tty line \\033[32mgreen\\033[0m\\n'; sleep 0.5; done'",
+    "Created": 1789246117,
+    "Health": {
+      "FailingStreak": 0,
+      "Status": "none"
+    },
+    "HostConfig": {
+      "NetworkMode": "bridge"
+    },
+    "Id": "72965dd89a60ce638f001047667e611be4b32b73f42e138716d1b97614e384d0",
+    "Image": "nginx:alpine",
+    "ImageID": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+    "ImageManifestDescriptor": {
+      "annotations": {
+        "com.docker.official-images.bashbrew.arch": "arm64v8",
+        "org.opencontainers.image.base.digest": "sha256:a3ba66b4e5d47c0135edebc8894e2337092db3c7c2228d9ee178c69e863253cc",
+        "org.opencontainers.image.base.name": "nginx:1.31.5-alpine-slim",
+        "org.opencontainers.image.created": "2026-09-02T21:07:11Z",
+        "org.opencontainers.image.revision": "c5b3ce398e37067d93ab1edf803e9b96a1116092",
+        "org.opencontainers.image.source": "https://github.com/nginx/docker-nginx.git#c5b3ce398e37067d93ab1edf803e9b96a1116092:mainline/alpine",
+        "org.opencontainers.image.url": "https://hub.docker.com/_/nginx",
+        "org.opencontainers.image.version": "1.31.5-alpine"
+      },
+      "digest": "sha256:ac1c5b25bb178c48d4f758b8a67021b45a5e6b056b8407364f060e162943f08b",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux",
+        "variant": "v8"
+      },
+      "size": 2497
+    },
+    "Labels": {
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "Mounts": [],
+    "Names": [
+      "/lsfx-tty"
+    ],
+    "NetworkSettings": {
+      "Networks": {
+        "bridge": {
+          "Aliases": null,
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "bac8cb9016977bb1a285d357354a773f00f57ba51d7bd8282baf51f630d35acc",
+          "Gateway": "172.17.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.17.0.4",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "3e:29:15:73:a0:48",
+          "NetworkID": "75500c301081265b9edcf67aacb5b5a6cb65bd466b504fa59c83c88dfec2b0c2"
+        }
+      }
+    },
+    "Ports": [
+      {
+        "IP": "",
+        "PrivatePort": 80,
+        "Type": "tcp"
+      }
+    ],
+    "State": "running",
+    "Status": "Up 5 seconds"
+  },
+  {
+    "Command": "sh -c 'echo boom >&2; exit 1'",
+    "Created": 1789246117,
+    "Health": {
+      "FailingStreak": 0,
+      "Status": "none"
+    },
+    "HostConfig": {
+      "NetworkMode": "bridge"
+    },
+    "Id": "c1d9d31141105fb8a1704f0c2b2e0e0bac272b83e87755eb7e944492a8e26693",
+    "Image": "nginx:alpine",
+    "ImageID": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+    "ImageManifestDescriptor": {
+      "annotations": {
+        "com.docker.official-images.bashbrew.arch": "arm64v8",
+        "org.opencontainers.image.base.digest": "sha256:a3ba66b4e5d47c0135edebc8894e2337092db3c7c2228d9ee178c69e863253cc",
+        "org.opencontainers.image.base.name": "nginx:1.31.5-alpine-slim",
+        "org.opencontainers.image.created": "2026-09-02T21:07:11Z",
+        "org.opencontainers.image.revision": "c5b3ce398e37067d93ab1edf803e9b96a1116092",
+        "org.opencontainers.image.source": "https://github.com/nginx/docker-nginx.git#c5b3ce398e37067d93ab1edf803e9b96a1116092:mainline/alpine",
+        "org.opencontainers.image.url": "https://hub.docker.com/_/nginx",
+        "org.opencontainers.image.version": "1.31.5-alpine"
+      },
+      "digest": "sha256:ac1c5b25bb178c48d4f758b8a67021b45a5e6b056b8407364f060e162943f08b",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux",
+        "variant": "v8"
+      },
+      "size": 2497
+    },
+    "Labels": {
+      "com.docker.compose.project": "shop",
+      "com.docker.compose.service": "worker",
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "Mounts": [],
+    "Names": [
+      "/lsfx-worker"
+    ],
+    "NetworkSettings": {
+      "Networks": {
+        "bridge": {
+          "Aliases": null,
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "",
+          "Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "",
+          "IPPrefixLen": 0,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "",
+          "NetworkID": "75500c301081265b9edcf67aacb5b5a6cb65bd466b504fa59c83c88dfec2b0c2"
+        }
+      }
+    },
+    "Ports": [],
+    "State": "exited",
+    "Status": "Exited (1) 5 seconds ago"
+  },
+  {
+    "Command": "sh -c 'i=0; while true; do i=$((i+1)); echo \"INFO request $i ok\"; echo \"WARN slow $i\" >&2; dd if=/dev/zero of=/dev/null bs=1M count=64 2>/dev/null; sleep 0.2; done'",
+    "Created": 1789246117,
+    "Health": {
+      "FailingStreak": 0,
+      "Status": "healthy"
+    },
+    "HostConfig": {
+      "NetworkMode": "bridge"
+    },
+    "Id": "efc9bc5455f8b53cd69fdceb737234e9383f50dd04b81214bd5ae6e6db58db34",
+    "Image": "nginx:alpine",
+    "ImageID": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+    "ImageManifestDescriptor": {
+      "annotations": {
+        "com.docker.official-images.bashbrew.arch": "arm64v8",
+        "org.opencontainers.image.base.digest": "sha256:a3ba66b4e5d47c0135edebc8894e2337092db3c7c2228d9ee178c69e863253cc",
+        "org.opencontainers.image.base.name": "nginx:1.31.5-alpine-slim",
+        "org.opencontainers.image.created": "2026-09-02T21:07:11Z",
+        "org.opencontainers.image.revision": "c5b3ce398e37067d93ab1edf803e9b96a1116092",
+        "org.opencontainers.image.source": "https://github.com/nginx/docker-nginx.git#c5b3ce398e37067d93ab1edf803e9b96a1116092:mainline/alpine",
+        "org.opencontainers.image.url": "https://hub.docker.com/_/nginx",
+        "org.opencontainers.image.version": "1.31.5-alpine"
+      },
+      "digest": "sha256:ac1c5b25bb178c48d4f758b8a67021b45a5e6b056b8407364f060e162943f08b",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux",
+        "variant": "v8"
+      },
+      "size": 2497
+    },
+    "Labels": {
+      "com.docker.compose.project": "shop",
+      "com.docker.compose.service": "api",
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "Mounts": [],
+    "Names": [
+      "/lsfx-api"
+    ],
+    "NetworkSettings": {
+      "Networks": {
+        "bridge": {
+          "Aliases": null,
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "37a750b1f85557e67a0634e47373760e90d6ee0a0cb43fca10f3195672d164f1",
+          "Gateway": "172.17.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.17.0.3",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "e2:7d:02:05:a6:37",
+          "NetworkID": "75500c301081265b9edcf67aacb5b5a6cb65bd466b504fa59c83c88dfec2b0c2"
+        }
+      }
+    },
+    "Ports": [
+      {
+        "IP": "0.0.0.0",
+        "PrivatePort": 3000,
+        "PublicPort": 13000,
+        "Type": "tcp"
+      },
+      {
+        "IP": "::",
+        "PrivatePort": 3000,
+        "PublicPort": 13000,
+        "Type": "tcp"
+      },
+      {
+        "IP": "",
+        "PrivatePort": 80,
+        "Type": "tcp"
+      }
+    ],
+    "State": "running",
+    "Status": "Up 5 seconds (healthy)"
+  },
+  {
+    "Command": "/docker-entrypoint.sh nginx -g 'daemon off;'",
+    "Created": 1789246117,
+    "Health": {
+      "FailingStreak": 0,
+      "Status": "none"
+    },
+    "HostConfig": {
+      "NetworkMode": "bridge"
+    },
+    "Id": "9f2f1ea22598b1417045367ff022c350881578712919a8921ff2555c8f7a764f",
+    "Image": "nginx:alpine",
+    "ImageID": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+    "ImageManifestDescriptor": {
+      "annotations": {
+        "com.docker.official-images.bashbrew.arch": "arm64v8",
+        "org.opencontainers.image.base.digest": "sha256:a3ba66b4e5d47c0135edebc8894e2337092db3c7c2228d9ee178c69e863253cc",
+        "org.opencontainers.image.base.name": "nginx:1.31.5-alpine-slim",
+        "org.opencontainers.image.created": "2026-09-02T21:07:11Z",
+        "org.opencontainers.image.revision": "c5b3ce398e37067d93ab1edf803e9b96a1116092",
+        "org.opencontainers.image.source": "https://github.com/nginx/docker-nginx.git#c5b3ce398e37067d93ab1edf803e9b96a1116092:mainline/alpine",
+        "org.opencontainers.image.url": "https://hub.docker.com/_/nginx",
+        "org.opencontainers.image.version": "1.31.5-alpine"
+      },
+      "digest": "sha256:ac1c5b25bb178c48d4f758b8a67021b45a5e6b056b8407364f060e162943f08b",
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux",
+        "variant": "v8"
+      },
+      "size": 2497
+    },
+    "Labels": {
+      "com.docker.compose.project": "shop",
+      "com.docker.compose.service": "web",
+      "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
+    },
+    "Mounts": [],
+    "Names": [
+      "/lsfx-web"
+    ],
+    "NetworkSettings": {
+      "Networks": {
+        "bridge": {
+          "Aliases": null,
+          "DNSNames": null,
+          "DriverOpts": null,
+          "EndpointID": "c76e8d421ab5301fd301f0697bd368ae8e146b05e38c3cc8b4393177425e174d",
+          "Gateway": "172.17.0.1",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "GwPriority": 0,
+          "IPAMConfig": null,
+          "IPAddress": "172.17.0.2",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "Links": null,
+          "MacAddress": "6a:68:95:6f:a3:c3",
+          "NetworkID": "75500c301081265b9edcf67aacb5b5a6cb65bd466b504fa59c83c88dfec2b0c2"
+        }
+      }
+    },
+    "Ports": [
+      {
+        "IP": "0.0.0.0",
+        "PrivatePort": 80,
+        "PublicPort": 18080,
+        "Type": "tcp"
+      },
+      {
+        "IP": "::",
+        "PrivatePort": 80,
+        "PublicPort": 18080,
+        "Type": "tcp"
+      }
+    ],
+    "State": "running",
+    "Status": "Up 5 seconds"
+  }
+]

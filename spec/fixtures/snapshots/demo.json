@@ -1,0 +1,411 @@
+{
+  "schema": "runtop.snapshot/v1",
+  "generated_at": "2026-09-12T20:31:00Z",
+  "targets": [
+    {
+      "key": "lima:docker",
+      "kind": "lima",
+      "name": "docker",
+      "read_only": false,
+      "endpoint": "unix:///Users/demo/.lima/docker/sock/docker.sock",
+      "state": "ok",
+      "error": null,
+      "vm": {
+        "status": "Running",
+        "vm_type": "vz",
+        "arch": "aarch64",
+        "cpus": 4,
+        "memory_bytes": 4294967296,
+        "disk_bytes": 107374182400,
+        "disk_used_bytes": 22978075033
+      },
+      "containers": [
+        {
+          "id": "a6d4e1b9c8f2",
+          "name": "mailpit",
+          "image": "axllent/mailpit:latest",
+          "state": "running",
+          "status": "Up 5 days",
+          "health": null,
+          "exit_code": null,
+          "project": "",
+          "service": "",
+          "ports": [
+            "1025->1025",
+            "8025->8025"
+          ],
+          "stats": {
+            "cpu_percent": 0.2,
+            "mem_bytes": 25165824,
+            "mem_limit_bytes": 4294967296
+          }
+        },
+        {
+          "id": "b3f8c2d7a9e4",
+          "name": "redis",
+          "image": "redis:7-alpine",
+          "state": "running",
+          "status": "Up 5 days",
+          "health": null,
+          "exit_code": null,
+          "project": "",
+          "service": "",
+          "ports": [
+            "6379->6379"
+          ],
+          "stats": {
+            "cpu_percent": 0.4,
+            "mem_bytes": 9437184,
+            "mem_limit_bytes": 4294967296
+          }
+        },
+        {
+          "id": "c9e6a3f2d8b1",
+          "name": "scratch",
+          "image": "alpine:3.20",
+          "state": "created",
+          "status": "Created",
+          "health": null,
+          "exit_code": null,
+          "project": "",
+          "service": "",
+          "ports": [],
+          "stats": null
+        },
+        {
+          "id": "e2a7d9b4f1c6",
+          "name": "blog-app-1",
+          "image": "ghost:5-alpine",
+          "state": "running",
+          "status": "Up 3 days",
+          "health": null,
+          "exit_code": null,
+          "project": "blog",
+          "service": "app",
+          "ports": [
+            "2368->2368"
+          ],
+          "stats": {
+            "cpu_percent": 0.9,
+            "mem_bytes": 144703488,
+            "mem_limit_bytes": 4294967296
+          }
+        },
+        {
+          "id": "f9c3b8e1a4d7",
+          "name": "blog-mysql-1",
+          "image": "mysql:8.4",
+          "state": "running",
+          "status": "Up 3 days (healthy)",
+          "health": "healthy",
+          "exit_code": null,
+          "project": "blog",
+          "service": "mysql",
+          "ports": [
+            "3306"
+          ],
+          "stats": {
+            "cpu_percent": 2.6,
+            "mem_bytes": 421527552,
+            "mem_limit_bytes": 4294967296
+          }
+        },
+        {
+          "id": "a1f3c9e2b7d4",
+          "name": "shop-api-1",
+          "image": "shop/api:dev",
+          "state": "running",
+          "status": "Up 2 hours (healthy)",
+          "health": "healthy",
+          "exit_code": null,
+          "project": "shop",
+          "service": "api",
+          "ports": [
+            "3000->3000"
+          ],
+          "stats": {
+            "cpu_percent": 7.4,
+            "mem_bytes": 171966464,
+            "mem_limit_bytes": 4294967296
+          }
+        },
+        {
+          "id": "b7d2e8a1c3f5",
+          "name": "shop-db-1",
+          "image": "postgres:16-alpine",
+          "state": "running",
+          "status": "Up 2 hours (healthy)",
+          "health": "healthy",
+          "exit_code": null,
+          "project": "shop",
+          "service": "db",
+          "ports": [
+            "5432->5432"
+          ],
+          "stats": {
+            "cpu_percent": 1.8,
+            "mem_bytes": 222298112,
+            "mem_limit_bytes": 4294967296
+          }
+        },
+        {
+          "id": "c4e9a2f7b1d8",
+          "name": "shop-web-1",
+          "image": "nginx:alpine",
+          "state": "running",
+          "status": "Up 2 hours",
+          "health": null,
+          "exit_code": null,
+          "project": "shop",
+          "service": "web",
+          "ports": [
+            "8080->80"
+          ],
+          "stats": {
+            "cpu_percent": 0.6,
+            "mem_bytes": 18874368,
+            "mem_limit_bytes": 4294967296
+          }
+        },
+        {
+          "id": "d8b1f4c7e2a9",
+          "name": "shop-worker-1",
+          "image": "shop/worker:dev",
+          "state": "exited",
+          "status": "Exited (1) 14 minutes ago",
+          "health": null,
+          "exit_code": 1,
+          "project": "shop",
+          "service": "worker",
+          "ports": [],
+          "stats": null
+        }
+      ],
+      "images": [
+        {
+          "id": "3e1f9a7c2d8b",
+          "ref": "mysql:8.4",
+          "size_bytes": 632291328,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "7b2d8e4f1a9c",
+          "ref": "<none>:<none>",
+          "size_bytes": 567279616,
+          "containers": 0,
+          "dangling": true
+        },
+        {
+          "id": "9c4a2f7e1b3d",
+          "ref": "ghost:5-alpine",
+          "size_bytes": 522190848,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "1d8f3b9a6e2c",
+          "ref": "shop/api:dev",
+          "size_bytes": 352321536,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "5a7e2c9f4b1d",
+          "ref": "postgres:16-alpine",
+          "size_bytes": 289406976,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "8e3b1d6a9f2c",
+          "ref": "shop/worker:dev",
+          "size_bytes": 252706816,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "2f9c7a4e8d1b",
+          "ref": "<none>:<none>",
+          "size_bytes": 197132288,
+          "containers": 0,
+          "dangling": true
+        },
+        {
+          "id": "0a5f9d3b7c2e",
+          "ref": "nginx:alpine",
+          "size_bytes": 54525952,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "6c1e8b3f7a2d",
+          "ref": "axllent/mailpit:latest",
+          "size_bytes": 42991616,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "4b8d2a6c9e1f",
+          "ref": "redis:7-alpine",
+          "size_bytes": 42991616,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "7d3a1f8c5b9e",
+          "ref": "alpine:3.20",
+          "size_bytes": 9227468,
+          "containers": 1,
+          "dangling": false
+        }
+      ]
+    },
+    {
+      "key": "lima:ci",
+      "kind": "lima",
+      "name": "ci",
+      "read_only": false,
+      "endpoint": "unix:///Users/demo/.lima/ci/sock/docker.sock",
+      "state": "vm_stopped",
+      "error": null,
+      "vm": {
+        "status": "Stopped",
+        "vm_type": "vz",
+        "arch": "aarch64",
+        "cpus": 4,
+        "memory_bytes": 6442450944,
+        "disk_bytes": 64424509440,
+        "disk_used_bytes": null
+      },
+      "containers": [],
+      "images": []
+    },
+    {
+      "key": "lima:k3s",
+      "kind": "lima",
+      "name": "k3s",
+      "read_only": false,
+      "endpoint": "unix:///Users/demo/.lima/k3s/sock/docker.sock",
+      "state": "no_docker_socket",
+      "error": null,
+      "vm": {
+        "status": "Running",
+        "vm_type": "vz",
+        "arch": "aarch64",
+        "cpus": 2,
+        "memory_bytes": 2147483648,
+        "disk_bytes": 21474836480,
+        "disk_used_bytes": 3328599654
+      },
+      "containers": [],
+      "images": []
+    },
+    {
+      "key": "ctx:prod-eu",
+      "kind": "context",
+      "name": "prod-eu",
+      "read_only": true,
+      "endpoint": "ssh://deploy@prod-eu.example.com",
+      "state": "ok",
+      "error": null,
+      "vm": null,
+      "containers": [
+        {
+          "id": "44dd55ee66ff",
+          "name": "backup",
+          "image": "restic/restic:0.17",
+          "state": "exited",
+          "status": "Exited (0) 6 hours ago",
+          "health": null,
+          "exit_code": 0,
+          "project": "",
+          "service": "",
+          "ports": [],
+          "stats": null
+        },
+        {
+          "id": "33cc44dd55ee",
+          "name": "caddy",
+          "image": "caddy:2",
+          "state": "running",
+          "status": "Up 12 days",
+          "health": null,
+          "exit_code": null,
+          "project": "",
+          "service": "",
+          "ports": [
+            "80->80",
+            "443->443"
+          ],
+          "stats": null
+        },
+        {
+          "id": "11aa22bb33cc",
+          "name": "api-1",
+          "image": "registry.example.com/api:1.42.0",
+          "state": "running",
+          "status": "Up 3 days (healthy)",
+          "health": "healthy",
+          "exit_code": null,
+          "project": "api",
+          "service": "api",
+          "ports": [
+            "8080->80"
+          ],
+          "stats": null
+        },
+        {
+          "id": "22bb33cc44dd",
+          "name": "api-2",
+          "image": "registry.example.com/api:1.42.0",
+          "state": "running",
+          "status": "Up 3 days (healthy)",
+          "health": "healthy",
+          "exit_code": null,
+          "project": "api",
+          "service": "api",
+          "ports": [
+            "8081->80"
+          ],
+          "stats": null
+        }
+      ],
+      "images": [
+        {
+          "id": "aa11bb22cc33",
+          "ref": "registry.example.com/api:1.42.0",
+          "size_bytes": 222298112,
+          "containers": 2,
+          "dangling": false
+        },
+        {
+          "id": "bb22cc33dd44",
+          "ref": "caddy:2",
+          "size_bytes": 51380224,
+          "containers": 1,
+          "dangling": false
+        },
+        {
+          "id": "cc33dd44ee55",
+          "ref": "restic/restic:0.17",
+          "size_bytes": 32505856,
+          "containers": 1,
+          "dangling": false
+        }
+      ]
+    },
+    {
+      "key": "ctx:staging",
+      "kind": "context",
+      "name": "staging",
+      "read_only": true,
+      "endpoint": "ssh://deploy@staging.example.com",
+      "state": "unreachable",
+      "error": "ssh: connect to host staging.example.com port 22: Operation timed out",
+      "vm": null,
+      "containers": [],
+      "images": []
+    }
+  ]
+}

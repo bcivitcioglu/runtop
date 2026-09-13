@@ -1,0 +1,7 @@
+{
+  "LayersSize": 1000,
+  "Images": [{"Id":"a"}, {"Id":"b"}],
+  "Containers": [{"SizeRw":10}, {"SizeRw":20}],
+  "Volumes": [{"Name":"db", "UsageData":{"Size":100,"RefCount":1}}, {"Name":"unknown"}],
+  "BuildCache": [{"Size":40,"InUse":false}, {"Size":50,"InUse":true}]
+}
