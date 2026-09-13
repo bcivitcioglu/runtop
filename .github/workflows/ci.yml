@@ -14,8 +14,8 @@ jobs:
         python: ["3.11", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.1.0
         with:
           python-version: ${{ matrix.python }}
       - run: uv sync --locked
@@ -24,7 +24,7 @@ jobs:
       - run: uv run pytest
       - run: uv build
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: snapshot-report-${{ matrix.os }}-${{ matrix.python }}
           path: snapshot_report.html
