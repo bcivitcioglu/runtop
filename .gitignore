@@ -19,3 +19,5 @@ assets/*/frames/
 /ROADMAP.md
 /CODE_REVIEW.md
 *.log
+/target/
+/release-dist/

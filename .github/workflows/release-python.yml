@@ -1,0 +1,39 @@
+name: release-full
+on:
+  push:
+    tags: ['py/v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.1.0
+        with:
+          python-version: '3.13'
+      - run: test "${GITHUB_REF_NAME#py/v}" = "$(uv version --short)"
+      - run: uv sync --locked
+      - run: uv run ruff check
+      - run: uv run ty check --error-on-warning
+      - run: uv run pytest
+      - run: uv build --out-dir release-dist
+      - run: uvx twine check release-dist/*
+      - run: python3 scripts/check_release.py release-dist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: full-package
+          path: release-dist/*
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: full-package
+          path: release-dist
+      - uses: astral-sh/setup-uv@v10.1.0
+      - run: uv publish --trusted-publishing always release-dist/*

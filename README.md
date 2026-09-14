@@ -1,104 +1,131 @@
 # runtop
 
-A terminal workspace for containers and their machines, in the style of a desktop app.
+A terminal workspace for containers and their machines.
 MIT licensed for personal and commercial use.
 
-![runtop full workspace](assets/runtop/demo.gif)
+![Full workspace](assets/runtop/demo.gif)
 
-The full edition uses Python and Textual: a machines sidebar, grouped containers,
-search, an inspector, project logs and confirmed actions. It works with existing
-Lima and Colima Docker VMs, local Docker sockets and read-only remote contexts.
+Choose the **full edition** for a machines sidebar, grouped containers, an inspector,
+project logs, archive recording, search, and mouse-driven workspace controls.
+Choose **lite** for a compact screen, fast startup, and a small standalone executable.
+Both editions work with existing local engines and read-only remote contexts.
 
-## Run from source
+## Install
 
-The full edition is in development. Registry reservations are not application releases.
+Full edition, requiring Python 3.11 or later:
 
 ```sh
-git clone https://github.com/bcivitcioglu/runtop.git
-cd runtop
-uv sync --locked
-uv run runtop --demo
-uv run runtop
-uv run runtop --edition
+uv tool install 'runtop>=0.1.0'
+runtop --demo
 ```
 
-Python 3.11+ is required. No daemon is needed for the demo. Live mode uses your
-existing runtime; runtop does not create a VM or install a container engine.
+Lite edition:
 
-## Everyday use
+```sh
+cargo install --locked runtop
+rt --demo
+```
 
-- Select a machine and browse containers grouped by Compose project. `/` filters;
-  `attention` finds unhealthy, restarting, dead and failed containers.
-- Inspect ports, mounts, networks, restart counts, OOM failures and health output.
-  `1`, `2`, `3` select Info, Logs and Stats; `i` opens details in narrow terminals.
-- Select a project and press `l` for combined logs. `s`, `x`, `R` start, stop or
-  restart existing members after a preview. Filters limit the affected members.
-- `D` opens Docker storage accounting on demand. Shared layers, unknown usage and
-  VM capacity are presented separately. Runtime data is never deleted automatically.
-- `ctrl+p` opens the command palette; `?` lists keys. Use the mouse for navigation,
-  tabs and pane resizing. `t` changes theme.
-- `runtop --doctor` explains discovery and connectivity failures without stats or
-  directory scans. `runtop --dump lima:docker` emits normalized snapshot JSON.
+Prebuilt lite executables are attached to the repository’s releases. Extract the
+archive, verify its checksum, and place `rt` and `runtop` on your executable path.
 
-Failed refreshes retain the last successful data with a stale warning and block
-mutations. Image-list failures leave containers usable. Remote `ssh://` and `tcp://`
-Docker contexts are always read-only.
+`rt` always opens lite. When both editions are installed in separate executable
+locations on your path, `runtop` opens full. The lite launcher recognizes the full
+entry point and hands over the original arguments. `rt` remains the direct route
+to lite. `--version` and `--edition` identify the executable you are running.
 
-Logs and resource history stay bounded in memory by default. Preferences are stored
-under `~/.config/runtop` (or `$XDG_CONFIG_HOME/runtop`). Images, volumes, build cache
-and VM disks are owned by the runtime and still consume storage.
+## Full workspace
+
+- Browse machines and containers grouped by project. `/` filters; `attention`
+  finds unhealthy, restarting, dead, and failed containers.
+- Inspect ports, mounts, networks, restart counts, memory failures, and health
+  output. `1`, `2`, `3` select Info, Logs, and Stats; `i` opens narrow-mode details.
+- Select a project and press `l` for combined logs. `s`, `x`, `R` start, stop, or
+  restart the listed existing members after a preview. Filters limit membership.
+- `D` opens storage accounting on demand. Shared layers, unknown usage, and
+  machine capacity are presented separately.
+- `ctrl+p` opens the command palette; `?` lists keys. Use the mouse to navigate,
+  select tabs, and resize panes. `t` changes theme.
+
+## Lite workspace
+
+![Compact workspace](assets/rt/glance.gif)
+
+One target header, one grouped list, and one footer. Columns adapt to terminal
+width. Container statistics and project totals remain close to their rows.
+
+- `↑↓` / `jk` move; `[` / `]` switch machines; Space folds a section.
+- `/` filters, `o` sorts by name, CPU, or memory, and `r` refreshes.
+- `i` inspects, `l` opens container or project logs, and `D` shows storage.
+- `s`, `x`, `R`, `X` start, stop, restart, or remove selected containers; actions
+  preview the captured selection and require confirmation.
+- `e` opens a shell; `p` previews dangling-image pruning; `?` shows all keys.
+- In logs, `f` toggles following, `w` wraps, and Esc returns to the list.
+- `--read-only` disables all mutations. `--no-mouse` disables mouse capture.
+
+Lite keeps at most 2,000 log lines and 2 MiB of log text, and follows at most 64
+selected sources. Archive recording, export, and archive search belong to full.
+
+## Listings and diagnostics
+
+```sh
+runtop ps -a --json
+rt ps -a --stats
+rt ps --images
+runtop --doctor
+rt --doctor
+runtop --dump lima:docker
+```
+
+`ps` lists local targets by default. Add `--contexts` to include remote targets,
+or select one explicitly with `--target KEY`. `--json` uses the shared
+[snapshot contract](spec/SPEC.md). Exit codes are 0 for success, 1 for no targets
+or a discovery failure, 2 for invalid input, and 3 for unavailable or partial data.
+
+Failed interactive refreshes retain the last successful data with a stale warning
+and disable actions. Image-list failures leave containers usable. Remote contexts
+are always read-only. No engine is installed and no machine is created on startup.
 
 ## Record and search logs
 
 ![Log archive controls](assets/runtop/archives.png)
 
-Press `L` to open Log archives for the selected container or project. Choose a
-folder, total budget, file size and retention, then press **Record**. **Stop** ends
-capture; closing the controls leaves recording active until runtop exits. A visible
-indicator stays on the main screen. **Export tail** saves the latest 200 lines per
-selected container without following. Search saved output in the same screen.
-
-Recording is off by default. Defaults are **64 MiB total**, **8 MiB per file** and
-**7 days** retention. Rotation deletes the oldest runtop archive files as needed;
-retention runs while recording or when opening a writer. Other files are untouched.
-Only one writer may use a folder at a time. The cap covers runtop JSONL files,
-not the runtime's own logs or unrelated files. Archive files use private permissions.
+In full, `L` opens Log archives for the selected container or project. Choose a
+folder and limits, then press **Record**. **Stop** ends capture. Closing the
+controls keeps recording active until the app exits; an indicator stays visible.
+**Export tail** saves recent output without following.
 
 ```sh
-# Foreground recording; Ctrl+C or SIGTERM stops and flushes.
 runtop logs record --target lima:docker --project shop --directory ~/logs/shop \
   --max-mib 64 --file-mib 8 --keep-days 7
-
-# Bounded recording or a one-time export for automation.
-runtop logs record --target lima:docker --container api --directory ~/logs/api --duration 60
 runtop logs export --target lima:docker --container api --directory ~/logs/api --tail 500
-
-# Literal search, optional filters, JSONL results for agents.
-runtop logs search error -i --directory ~/logs/shop --project shop --limit 200 --json
-runtop logs search --directory ~/logs/api --container api --since 2026-01-01T00:00:00Z
+runtop logs search error -i --directory ~/logs/shop --limit 200 --json
 runtop logs status --directory ~/logs/shop --json
 ```
 
-Search streams files without building an index; results are capped at 200 by default
-(maximum 10,000). It returns exit code 0 for matches, 1 for no matches and 2 for invalid
-input or an archive error. JSONL retains capture time, target, container, project,
-service, output stream and message. Messages keep the runtime's timestamps when
-available. `--since` filters capture time. Very large records are marked as truncated;
-long unterminated output is split into bounded fragments. A full queue or disk error
-stops capture visibly instead of buffering without limit. Saved output may contain
-application secrets.
+Recording is off by default. Defaults are 64 MiB total, 8 MiB per file, and seven
+days retention. Rotation removes only owned archive files; one writer may use a
+folder at a time. Search streams saved files with bounded results. Exit codes
+are 0 for matches, 1 for none, and 2 for invalid input or an archive error.
 
-Recording follows the selected existing container IDs. It does not reconnect across
-container recreation, start a background service or change runtime logging settings.
+Archives retain capture time, source identity, output stream, message, and
+truncation markers. `--since` filters capture time. Queue or disk errors stop
+capture visibly. Recording follows existing container IDs and does not reconnect
+across their recreation. Saved output may contain application secrets.
 
-## Development
+## Develop
 
 ```sh
+uv sync --locked
 uv run ruff check
 uv run ty check --error-on-warning
 uv run pytest
-scripts/record.sh runtop demo "$(cat scripts/tapes/runtop-demo.keys)" 24
+cargo fmt --check
+cargo clippy --locked --all-targets -- -D warnings
+cargo test --locked
+cargo build --locked --release
 ```
 
-Committed recordings use demo data. The [data contract](spec/SPEC.md) defines target
-states, normalization and snapshot JSON.
+Both editions share normalization fixtures. Interface recordings use synthetic
+`--demo` data. Local runtime workloads and development measurements are kept
+outside distributed packages.

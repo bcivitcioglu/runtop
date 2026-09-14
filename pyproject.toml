@@ -1,7 +1,7 @@
 [project]
 name = "runtop"
 version = "0.1.0"
-description = "A TUI Docker workspace in the style of a desktop app, for Lima and Colima VMs"
+description = "A terminal workspace for containers and their machines"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
@@ -11,7 +11,7 @@ dependencies = [
     "textual>=8.2.8,<9",
     "typing-extensions>=4.4.0",
 ]
-keywords = ["docker", "lima", "colima", "tui", "textual", "containers"]
+keywords = ["terminal", "workspace", "tui", "containers", "monitor"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",

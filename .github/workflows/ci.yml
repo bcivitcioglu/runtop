@@ -29,3 +29,19 @@ jobs:
           name: snapshot-report-${{ matrix.os }}-${{ matrix.python }}
           path: snapshot_report.html
           if-no-files-found: ignore
+  lite:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked
+      - run: cargo build --locked --release
+      - run: cargo package --locked
+      - run: python3 scripts/check_release.py target/package
+      - run: target/release/rt --demo --dump lima:docker

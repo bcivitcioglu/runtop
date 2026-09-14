@@ -23,6 +23,7 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 case $tool in
+  rt) cmd=("$root/target/release/rt") ;;
   runtop) cmd=(uv run --project "$root" runtop) ;;
   *) echo "unknown tool: $tool" >&2; exit 2 ;;
 esac

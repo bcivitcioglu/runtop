@@ -1,0 +1,30 @@
+ runtop lite  /  docker  1/5                                                                        
+────────────────────────────────────────────────────────────────────────────────────────────────────
+ Running · 4 CPUs · 4.0G memory · 100.0G disk capacity                                              
+                                                                                                    
+▎◈ docker  ok                                                                                       
+ ▾ standalone  2/3 up   0.6%  33.0M                                                                 
+   ● mailpit                   running     0.2%   24.0M            1025->1025,8025- axllent/mailpit:
+   ● redis                     running     0.4%   9.0M             6379->6379       redis:7-alpine  
+   ● scratch                   created     —      —                                 alpine:3.20     
+ ▾ blog  2/2 up   3.5%  540.0M                                                                      
+   ● blog-app-1                running     0.9%   138.0M           2368->2368       ghost:5-alpine  
+   ● blog-mysql-1              healthy     2.6%   402.0M           3306             mysql:8.4       
+ ▾ shop  3/4 up   9.8%  394.0M                                                                      
+   ● shop-api-1                healthy     7.4%   164.0M           3000->3000       shop/api:dev    
+   ● shop-db-1                 healthy     1.8%   212.0M           5432->5432       postgres:16-alpi
+   ● shop-web-1                running     0.6%   18.0M            8080->80         nginx:alpine    
+   ● shop-worker-1             exited      —      —                                 shop/worker:dev 
+ ▸ Images  11 · 2 dangling                                                                          
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+────────────────────────────────────────────────────────────────────────────────────────────────────
+ ↑↓ move  [ ] machine  / filter  i inspect  l logs  ? help  q quit                                  

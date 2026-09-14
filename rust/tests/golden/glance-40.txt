@@ -1,0 +1,30 @@
+ runtop lite  /  docker  1/5            
+────────────────────────────────────────
+ Running · 4 CPUs · 4.0G memory · 100.0G
+                                        
+▎◈ docker  ok                           
+ ▾ standalone  2/3 up                   
+   ● mailpit                 0.2%   24.0
+   ● redis                   0.4%   9.0M
+   ● scratch                 —      —   
+ ▾ blog  2/2 up                         
+   ● blog-app-1              0.9%   138.
+   ● blog-mysql-1            2.6%   402.
+ ▾ shop  3/4 up                         
+   ● shop-api-1              7.4%   164.
+   ● shop-db-1               1.8%   212.
+   ● shop-web-1              0.6%   18.0
+   ● shop-worker-1           —      —   
+ ▸ Images  11 · 2 dangling              
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+────────────────────────────────────────
+ ↑↓ move  [ ] machine  / filter  i inspe

@@ -1,0 +1,30 @@
+ runtop lite  /  docker  1/5                                
+────────────────────────────────────────────────────────────
+ Running · 4 CPUs · 4.0G memory · 100.0G disk capacity      
+                                                            
+▎◈ docker  ok                                               
+ ▾ standalone  2/3 up   0.6%  33.0M                         
+   ● mailpit               running     0.2%   24.0M         
+   ● redis                 running     0.4%   9.0M          
+   ● scratch               created     —      —             
+ ▾ blog  2/2 up   3.5%  540.0M                              
+   ● blog-app-1            running     0.9%   138.0M        
+   ● blog-mysql-1          healthy     2.6%   402.0M        
+ ▾ shop  3/4 up   9.8%  394.0M                              
+   ● shop-api-1            healthy     7.4%   164.0M        
+   ● shop-db-1             healthy     1.8%   212.0M        
+   ● shop-web-1            running     0.6%   18.0M         
+   ● shop-worker-1         exited      —      —             
+ ▸ Images  11 · 2 dangling                                  
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+────────────────────────────────────────────────────────────
+ ↑↓ move  [ ] machine  / filter  i inspect  l logs  ? help  

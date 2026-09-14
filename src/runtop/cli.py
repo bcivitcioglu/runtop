@@ -40,12 +40,14 @@ async def dump(key: str, *, demo: bool, snapshot: str | None) -> int:
         if isinstance(backend, LiveBackend):
             # stream=false without one-shot: the daemon fills precpu_stats, so CPU% is ready now.
             snap = await backend.fetch(target, one_shot=False)
-            await backend.aclose()
         else:
             snap = await backend.fetch(target)
     except Exception as e:  # CLI boundary
         print(f"runtop: {e}", file=sys.stderr)
         return 1
+    finally:
+        if isinstance(backend, LiveBackend):
+            await backend.aclose()
     generated = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     sys.stdout.write(dumps_document([snap], generated))
     return 0
@@ -53,6 +55,10 @@ async def dump(key: str, *, demo: bool, snapshot: str | None) -> int:
 
 def main(argv: list[str] | None = None) -> None:
     argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "ps":
+        from runtop.ps_cli import main as ps_main
+
+        raise SystemExit(ps_main(argv[1:]))
     if argv and argv[0] == "logs":
         from runtop.logs_cli import main as logs_main
 

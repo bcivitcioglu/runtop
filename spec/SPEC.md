@@ -1,27 +1,27 @@
 # runtop — data contract
 
 This document describes target states, normalization and the
-`runtop.snapshot/v1` JSON document produced by the Textual app.
+`runtop.snapshot/v1` JSON document shared by both editions.
 
 ## Targets
 
 | kind | key | source | writable |
 |---|---|---|---|
 | `lima` | `lima:<name>` | `limactl list --format json` (one object per line) | yes |
-| `colima` | `colima:<profile>` | `colima list --json` (Docker profiles, including stopped ones); `$COLIMA_HOME/<profile>/docker.sock` or `~/.colima/<profile>/docker.sock` | yes |
+| `colima` | `colima:<profile>` | `colima list --json` (engine profiles, including stopped ones); `$COLIMA_HOME/<profile>/docker.sock` or `~/.colima/<profile>/docker.sock` | yes |
 | `host` | `host` | `$DOCKER_HOST` `unix://…`, else `$XDG_RUNTIME_DIR/docker.sock` (rootless), else `/var/run/docker.sock` (runtop on servers) | yes |
-| `host` | `local:<name>` | Docker contexts with `unix://` endpoints | yes |
+| `host` | `local:<name>` | engine contexts with `unix://` endpoints | yes |
 | `context` | `ctx:<name>` | `docker context ls --format json`, endpoints `ssh://` or `tcp://` only | **never** |
 
-- Lima socket: `<dir>/sock/docker.sock`. Missing file → state `no_docker_socket`
-  (CI VMs without docker), not "unreachable".
-- Lima fields used: `name status dir vmType arch cpus memory disk` (bytes; `disk` is the cap).
+- Managed VM socket: `<dir>/sock/docker.sock`. Missing file → state `no_docker_socket`
+  (CI VMs without an engine), not "unreachable".
+- Managed VM fields used: `name status dir vmType arch cpus memory disk` (bytes; `disk` is the cap).
 - Host allocation: `du -sk <dir>` × 1024, optionally measured at most every 30 s.
   Interactive monitoring does not run this scan. This is not guest filesystem usage.
 - Discover sources independently, keep successful results alongside errors, and deduplicate
   local sockets by canonical path. Prefer managed VM metadata over context aliases.
-- Colima lifecycle uses `colima start|stop --profile <profile>`; Lima uses `limactl`.
-  Colima containerd/incus profiles are not Docker targets.
+- Managed profile lifecycle uses `colima start|stop --profile <profile>`; managed VM uses `limactl`.
+  Profiles configured for other engine types are not targets.
 
 ## Target states (UI must render each distinctly; a loader is never an empty list)
 
@@ -146,7 +146,7 @@ and the fixture/snapshot tests. snake_case; decoders ignore unknown fields.
 }
 ```
 
-- `vm` is `null` for targets other than Lima and Colima; `disk_used_bytes` may be `null` (not measured).
+- `vm` is `null` for targets other than managed machines; `disk_used_bytes` may be `null` (not measured).
 - `stats` is `null` when unavailable (not running, remote). A container with a first
   one-shot sample has a `stats` object whose `cpu_percent` is `null` (memory is known).
 - `state` is one of the target states above; `containers`/`images` are `[]` unless `ok`.
@@ -172,16 +172,16 @@ The app normalizes `engine/disk_usage.json` using these rules:
 - Build cache: sum `Size`, labelled logical record sizes, which may share data.
 - Empty lists have count/size zero. Categories are not additive and exclude guest OS,
   bind mounts and some logs. Unknown is never labelled zero or unused.
-- No background accounting or automatic deletion. Pruning only calls Docker’s existing
+- No background accounting or automatic deletion. Pruning only calls the engine’s existing
   dangling-image endpoint and reports actual `SpaceReclaimed` afterwards.
 
 ### Project workflows
 
-`l` on a Compose group combines logs with service/container prefixes and a bounded queue.
+`l` on a project group combines logs with service/container prefixes and a bounded queue.
 Closing the view cancels and joins its readers. `s` / `x` / `R` on a project previews the
 listed members, captures their IDs and target, and applies operations to existing containers.
 Filters restrict membership; new containers discovered later are not included. All project
-operations confirm. These are not Compose deployments and do not execute project files or
+operations confirm. These are not project deployments and do not execute project files or
 perform dependency ordering. Partial failures are reported per container, with named failures. Remote and stale targets remain non-writable.
 
 ## Fixtures (`spec/fixtures/`)

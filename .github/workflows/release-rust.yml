@@ -1,0 +1,60 @@
+name: release-lite
+on:
+  push:
+    tags: ['rs/v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, target: aarch64-apple-darwin }
+          - { os: macos-15-intel, target: x86_64-apple-darwin }
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-musl }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+      - run: rustup target add ${{ matrix.target }}
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - run: python3 scripts/check_version.py rust "${GITHUB_REF_NAME#rs/v}"
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked
+      - run: cargo package --locked
+      - run: python3 scripts/check_release.py target/package
+      - run: cargo build --locked --release --target ${{ matrix.target }}
+      - run: target/${{ matrix.target }}/release/rt --demo --dump lima:docker
+      - run: python3 scripts/package_lite.py ${{ matrix.target }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lite-${{ matrix.target }}
+          path: release-dist/*
+  publish-crate:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: crates
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install stable --profile minimal
+      - run: cargo publish --locked
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+  publish-binaries:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: lite-*
+          merge-multiple: true
+          path: release-dist
+      - run: gh release create "$GITHUB_REF_NAME" release-dist/* --repo "$GITHUB_REPOSITORY" --title "runtop lite ${GITHUB_REF_NAME#rs/v}" --notes 'Compact terminal workspace release. Verify the supplied checksums before installation.'
+        env:
+          GH_TOKEN: ${{ github.token }}
