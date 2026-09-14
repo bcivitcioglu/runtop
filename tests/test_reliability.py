@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 import json
 from collections.abc import AsyncIterator
 from dataclasses import replace
@@ -10,6 +11,9 @@ from unittest.mock import AsyncMock
 import httpx
 import pytest
 from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.widgets import Static
+from textual.widgets._footer import FooterKey
 from typing_extensions import override
 
 from runtop.config import Config, load
@@ -25,6 +29,7 @@ from runtop.screens.project_logs import project_lines
 from runtop.screens.storage import StorageScreen
 from runtop.state.actions import BY_ID, Disabled, Subject
 from runtop.state.store import Store
+from runtop.widgets.footer import RuntopFooter
 from runtop.widgets.log_view import LogView
 
 from .helpers import main_screen, make_app, screen_text, tree, wait_for
@@ -206,3 +211,58 @@ async def test_project_log_cancel_joins_all_readers() -> None:
     assert all(line.text.startswith("[service-") for line in lines)
     await stream.aclose()
     assert reader.closed == 2
+
+
+class FooterApp(App[None]):
+    BINDINGS = [Binding("s", "go", "Go"), Binding("x", "halt", "Halt")]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.go_enabled = True
+
+    @override
+    def compose(self) -> ComposeResult:
+        yield Static("body")
+        yield RuntopFooter()
+
+    def action_go(self) -> None: ...
+
+    def action_halt(self) -> None: ...
+
+    @override
+    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
+        return self.go_enabled if action == "go" else True
+
+
+def live_footer_keys() -> int:
+    gc.collect()
+    return sum(isinstance(o, FooterKey) for o in gc.get_objects())
+
+
+async def test_footer_rebuilds_release_replaced_keys() -> None:
+    app = FooterApp()
+    async with app.run_test(size=(80, 8)) as pilot:
+        await pilot.pause(0.2)
+        baseline = live_footer_keys()
+        for _ in range(30):  # every toggle changes the shown bindings and rebuilds the footer
+            app.go_enabled = not app.go_enabled
+            app.screen.refresh_bindings()
+            await pilot.pause(0.02)
+        await pilot.pause(0.2)
+        mounted = len(app.screen.query(FooterKey))
+        assert mounted
+        assert live_footer_keys() <= baseline + mounted
+
+
+async def test_footer_keeps_keys_when_bindings_are_unchanged() -> None:
+    app = FooterApp()
+    async with app.run_test(size=(80, 8)) as pilot:
+        await pilot.pause(0.2)
+        before = list(app.screen.query(FooterKey))
+        for _ in range(5):
+            app.screen.refresh_bindings()
+            await pilot.pause(0.02)
+        await pilot.pause(0.2)
+        after = list(app.screen.query(FooterKey))
+        assert before
+        assert all(a is b for a, b in zip(before, after, strict=True))

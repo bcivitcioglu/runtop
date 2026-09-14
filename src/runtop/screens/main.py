@@ -12,7 +12,7 @@ from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.screen import Screen
 from textual.widget import Widget
-from textual.widgets import Button, ContentSwitcher, DataTable, Footer, Input, Static, Tree
+from textual.widgets import Button, ContentSwitcher, DataTable, Input, Static, Tree
 from typing_extensions import override
 
 from runtop.appref import runtop_app
@@ -28,6 +28,7 @@ from runtop.state.viewmodel import SORTS, PaneKind, build_groups, filter_images,
 from runtop.widgets.container_tree import ContainerTree, Row, header_text
 from runtop.widgets.detail import ActionBar, DetailPane, DetailSubject
 from runtop.widgets.empty_state import EmptyState
+from runtop.widgets.footer import RuntopFooter
 from runtop.widgets.images_table import ImagesTable
 from runtop.widgets.kwargs import WidgetKwargs
 from runtop.widgets.sidebar import SectionList, Sidebar, TargetList, TargetStatus
@@ -149,7 +150,7 @@ class MainScreen(Screen[None]):
                     yield EmptyState(id="empty")
             yield Splitter("detail", "right", default=DETAIL_WIDTH, minimum=30, maximum=90, id="split-right")
             yield DetailPane(id="detail")
-        yield Footer(id="footer")
+        yield RuntopFooter(id="footer")
 
     def on_mount(self) -> None:
         self.set_interval(0.5, self._recording_status)
