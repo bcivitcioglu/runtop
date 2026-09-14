@@ -5,8 +5,8 @@ from __future__ import annotations
 import asyncio
 import re
 import time
-from collections.abc import AsyncIterator, Callable
-from typing import Unpack
+from collections.abc import AsyncIterator, Callable, Iterable
+from typing import Self, Unpack
 
 from rich.cells import cell_len
 from rich.style import Style
@@ -64,6 +64,15 @@ class LimaLog(Log):
         super().__init__(max_lines=5000, auto_scroll=True, **kwargs)
         self.query_text = ""
         self.compact_timestamps = True  # narrow pane: show the time, not the date
+
+    @override
+    def write_lines(self, lines: Iterable[str], scroll_end: bool | None = None) -> Self:
+        super().write_lines(lines, scroll_end)
+        # Log refreshes new lines at their indexes from before pruning. At max_lines those rows lie past
+        # the end, so a following view would stop repainting: repaint the viewport instead.
+        if self.max_lines is not None and self.line_count >= self.max_lines:
+            self.refresh()
+        return self
 
     @override
     def on_mount(self) -> None:

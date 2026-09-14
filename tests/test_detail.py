@@ -147,6 +147,26 @@ def test_log_render_keeps_sgr_and_strips_other_escapes() -> None:
     asyncio.run(go())
 
 
+async def test_log_keeps_repainting_after_max_lines_prunes() -> None:
+    class A(App[None]):
+        @override
+        def compose(self) -> ComposeResult:
+            yield LimaLog()
+
+    app = A()
+    async with app.run_test(size=(60, 12)) as pilot:
+        log = app.query_one(LimaLog)
+        cap = log.max_lines
+        assert cap is not None
+        log.write_lines([f"line {i}" for i in range(cap)])
+        await pilot.pause()
+        assert f"line {cap - 1}" in screen_text(app)
+        for i in range(cap, cap + 3):  # every write past the cap prunes the oldest line
+            log.write_lines([f"line {i}"])
+            await pilot.pause()
+        assert f"line {cap + 2}" in screen_text(app)
+
+
 async def test_stats_tab_charts_history_and_remote_message() -> None:
     app = make_app()
     async with app.run_test(size=SIZE) as pilot:
