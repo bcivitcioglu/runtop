@@ -1,6 +1,6 @@
 [project]
 name = "runtop"
-version = "0.1.0"
+version = "0.1.1"
 description = "A terminal workspace for containers and their machines"
 license = "MIT"
 license-files = ["LICENSE"]

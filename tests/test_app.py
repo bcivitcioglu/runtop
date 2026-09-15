@@ -16,7 +16,7 @@ from runtop.data.backend import FixtureBackend
 from runtop.data.models import DaemonState, Target, TargetKind, TargetSnapshot
 from runtop.widgets.container_tree import ContainerTree
 from runtop.widgets.images_table import ImagesTable
-from runtop.widgets.sidebar import SectionList, TargetList
+from runtop.widgets.sidebar import SectionSelector, TargetList
 from runtop.widgets.splitter import Splitter
 
 from .helpers import (
@@ -110,7 +110,7 @@ async def test_group_collapse_and_expand() -> None:
         await settle(pilot)
         assert "group:shop" in t.collapsed
         await pilot.press("left")  # …and on a collapsed group moves to the sidebar
-        assert isinstance(app.focused, TargetList | SectionList)
+        assert isinstance(app.focused, TargetList | SectionSelector)
 
 
 async def test_collapse_survives_refresh_and_target_round_trip() -> None:
@@ -293,9 +293,9 @@ async def test_tab_cycles_columns_and_sidebar_edges() -> None:
         assert isinstance(app.focused, ContainerTree)
         await pilot.press("shift+tab")
         assert isinstance(app.focused, TargetList)
-        await pilot.press("up")  # top of machines → sections list
-        assert isinstance(app.focused, SectionList)
-        await pilot.press("down")  # at Images, the bottom section → back into machines
+        await pilot.press("up")  # top of machines → view selector
+        assert isinstance(app.focused, SectionSelector)
+        await pilot.press("down")  # selector → back into machines
         assert isinstance(app.focused, TargetList)
 
 
@@ -305,13 +305,13 @@ async def test_sections_switch_to_images_table() -> None:
         assert await wait_for(pilot, lambda: tree(app).last_line > 0 and app.focused is not None)
         # Wait for each step to land instead of racing key presses on slow CI runners.
         await pilot.press("shift+tab")
-        assert await wait_for(pilot, lambda: isinstance(app.focused, TargetList | SectionList))
-        await pilot.press("up")
+        assert await wait_for(pilot, lambda: isinstance(app.focused, TargetList | SectionSelector))
+        await pilot.press("up", "right")
         assert await wait_for(pilot, lambda: "REPOSITORY" in screen_text(app)
                               and "‹dangling›" in screen_text(app) and "11 images" in screen_text(app), timeout=10.0)
         text = screen_text(app)
         assert "REPOSITORY" in text and "‹dangling›" in text and "11 images" in text
-        await pilot.press("right")
+        await pilot.press("enter")
         assert isinstance(app.focused, ImagesTable)
         image = app.focused.selected_image
         assert image is not None and image.ref == "mysql:8.4"

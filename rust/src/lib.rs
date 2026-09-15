@@ -3,6 +3,7 @@ pub mod cli;
 pub mod handoff;
 pub mod logs;
 pub mod model;
+pub mod navigation;
 pub mod ui;
 use clap::Parser;
 pub fn main_entry() -> i32 {

@@ -1,4 +1,5 @@
- runtop lite  /  docker  1/5            
+ runtop lite  /  docker  1/5 · m machine
+   ● docker   ○ ci   ○ k3s             ›
 ────────────────────────────────────────
  Running · 4 CPUs · 4.0G memory · 100.0G
                                         
@@ -25,6 +26,5 @@
                                         
                                         
                                         
-                                        
 ────────────────────────────────────────
- ↑↓ move  [ ] machine  / filter  i inspe
+ ↑↓ move  ←→ machine  m choose  / filter

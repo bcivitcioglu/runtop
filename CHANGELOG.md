@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1 — 2026-09-15
+
+- Boxed Containers / Images selector in full, independent of machine selection.
+- Visible machine navigation in lite, with a keyboard and mouse chooser.
+- Continuous log ingestion and efficient visible-line rendering in lite; wrapped
+  logs follow the actual bottom of the view.
+- Ignore obsolete refresh results after a machine changes state, and keep mouse
+  input inside active lite overlays.
+
 ## 0.1.0 — 2026-09-14
 
 - Full workspace with machine discovery, grouped containers, inspector,

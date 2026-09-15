@@ -31,7 +31,7 @@ from runtop.widgets.empty_state import EmptyState
 from runtop.widgets.footer import RuntopFooter
 from runtop.widgets.images_table import ImagesTable
 from runtop.widgets.kwargs import WidgetKwargs
-from runtop.widgets.sidebar import SectionList, Sidebar, TargetList, TargetStatus
+from runtop.widgets.sidebar import SectionSelector, Sidebar, TargetList, TargetStatus
 from runtop.widgets.splitter import Splitter
 from runtop.widgets.styles import fg
 from runtop.widgets.topbar import Breadcrumb, ReadOnlyStrip, RefreshIndicator, TopBar
@@ -207,7 +207,7 @@ class MainScreen(Screen[None]):
             Section.CONTAINERS: len(snap.containers) if ok and snap else None,
             Section.IMAGES: len(snap.images) if ok and snap and snap.images_loaded else None,
         }
-        self.query_one(SectionList).set_counts(counts, self.section)
+        self.query_one(SectionSelector).set_counts(counts, self.section)
 
         # top bar + read-only strip
         crumbs = (target.name, "Containers" if self.section is Section.CONTAINERS else "Images") if target else ()
@@ -467,13 +467,13 @@ class MainScreen(Screen[None]):
     def _target_highlighted(self, event: TargetList.TargetHighlighted) -> None:
         self.lapp.poller.select(event.key)
 
-    @on(SectionList.SectionHighlighted)
-    def _section_highlighted(self, event: SectionList.SectionHighlighted) -> None:
+    @on(SectionSelector.Changed)
+    def _section_highlighted(self, event: SectionSelector.Changed) -> None:
         self.section = event.section
         self.sync()
 
     @on(TargetList.OptionSelected)
-    @on(SectionList.OptionSelected)
+    @on(SectionSelector.Opened)
     def _sidebar_enter(self) -> None:
         self._focus_column("middle")
 
@@ -519,7 +519,7 @@ class MainScreen(Screen[None]):
     def _focus_column(self, col: str) -> bool:
         if col == "sidebar":
             targets = self.query_one(TargetList)
-            sections = self.query_one(SectionList)
+            sections = self.query_one(SectionSelector)
             (sections if self.focused is sections else targets).focus()
             return True
         if col == "middle":
@@ -582,7 +582,7 @@ class MainScreen(Screen[None]):
         elif event.key in ("left", "h") and isinstance(focused, ImagesTable):
             event.stop()
             self._focus_column("sidebar")
-        elif event.key in ("right", "l") and isinstance(focused, TargetList | SectionList):
+        elif event.key in ("right", "l") and isinstance(focused, TargetList):
             event.stop()
             self._focus_column("middle")
 

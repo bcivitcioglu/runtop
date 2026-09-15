@@ -62,7 +62,7 @@ def run_before(app: RuntopApp, key: str, *keys: str) -> Callable[[Pilot[None]], 
 @pytest.mark.parametrize(("name", "key", "keys", "size", "theme"), [
     ("containers", "lima:docker", (), (160, 45), "runtop"),
     ("containers_collapsed", "lima:docker", ("down", "down", "left"), (160, 45), "runtop"),
-    ("images", "lima:docker", ("shift+tab", "up", "tab"), (160, 45), "runtop"),
+    ("images", "lima:docker", ("shift+tab", "up", "right", "tab"), (160, 45), "runtop"),
     ("vm_stopped", "lima:ci", (), (160, 45), "runtop"),
     ("no_docker_socket", "lima:k3s", (), (160, 45), "runtop"),
     ("remote_read_only", "ctx:prod-eu", (), (160, 45), "runtop"),

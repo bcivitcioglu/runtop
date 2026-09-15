@@ -8,7 +8,7 @@ use anyhow::{Context, Result, ensure};
 use crossterm::{
     event::{
         DisableMouseCapture, EnableMouseCapture, Event, EventStream, KeyCode, KeyEvent,
-        KeyEventKind, KeyModifiers, MouseEventKind,
+        KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
     },
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
@@ -71,6 +71,11 @@ struct Totals {
     mem_unknown: bool,
 }
 pub struct App {
+    machine_tabs: Vec<(usize, Rect)>,
+    machine_bar: Rect,
+    picker: Option<usize>,
+    picker_area: Rect,
+    picker_state: ListState,
     container_index: HashMap<String, usize>,
     totals: HashMap<String, Totals>,
     pub targets: Vec<Snapshot>,
@@ -100,6 +105,11 @@ pub struct App {
 impl App {
     pub fn new(targets: Vec<Snapshot>, selected: usize, read_only: bool) -> Self {
         let mut app = Self {
+            machine_tabs: vec![],
+            machine_bar: Rect::default(),
+            picker: None,
+            picker_area: Rect::default(),
+            picker_state: ListState::default(),
             container_index: HashMap::new(),
             totals: HashMap::new(),
             targets,
@@ -362,21 +372,240 @@ impl App {
         }
         self.rebuild();
     }
-    fn switch(&mut self, delta: isize) {
-        if self.targets.is_empty() {
-            return;
+    fn select_target(&mut self, index: usize) -> bool {
+        if index >= self.targets.len() || index == self.selected {
+            return false;
         }
-        self.selected =
-            (self.selected as isize + delta).rem_euclid(self.targets.len() as isize) as usize;
+        self.selected = index;
         self.cursor = 0;
+        self.list_state = ListState::default();
         self.pending = None;
         self.overlay = None;
+        self.picker = None;
         self.generation += 1;
         self.last_fetch = Instant::now() - Duration::from_secs(60);
         self.rebuild();
+        true
+    }
+    fn switch(&mut self, delta: isize) -> bool {
+        if self.targets.is_empty() {
+            return false;
+        }
+        self.select_target(
+            (self.selected as isize + delta).rem_euclid(self.targets.len() as isize) as usize,
+        )
+    }
+    fn machine_status(&self, index: usize) -> (&str, Color) {
+        let t = &self.targets[index];
+        let s = self.cache.get(&t.key).unwrap_or(t);
+        if s.stale {
+            ("stale", Color::Yellow)
+        } else if t.vm.as_ref().is_some_and(|v| v.status != "Running") {
+            ("stopped", Color::DarkGray)
+        } else {
+            match s.state.as_str() {
+                "ok" => ("connected", Color::Green),
+                "unreachable" => ("offline", Color::Red),
+                "no_docker_socket" => ("no engine", Color::Yellow),
+                _ => ("not loaded", Color::DarkGray),
+            }
+        }
+    }
+    fn open_picker(&mut self) {
+        if !self.targets.is_empty() {
+            self.picker = Some(self.selected);
+        }
+    }
+    fn picker_key(&mut self, key: KeyCode) -> bool {
+        let Some(index) = self.picker else {
+            return false;
+        };
+        match key {
+            KeyCode::Esc | KeyCode::Char('q') => self.picker = None,
+            KeyCode::Up | KeyCode::Char('k') => self.picker = Some(index.saturating_sub(1)),
+            KeyCode::Down | KeyCode::Char('j') => {
+                self.picker = Some((index + 1).min(self.targets.len().saturating_sub(1)))
+            }
+            KeyCode::Home | KeyCode::Char('g') => self.picker = Some(0),
+            KeyCode::End | KeyCode::Char('G') => {
+                self.picker = Some(self.targets.len().saturating_sub(1))
+            }
+            KeyCode::Enter => {
+                self.picker = None;
+                return self.select_target(index);
+            }
+            _ => {}
+        }
+        false
+    }
+    fn mouse(&mut self, event: MouseEvent) -> bool {
+        if self.pending.is_some() {
+            return false;
+        }
+        if self.picker.is_some() {
+            match event.kind {
+                MouseEventKind::ScrollDown => {
+                    self.picker_key(KeyCode::Down);
+                }
+                MouseEventKind::ScrollUp => {
+                    self.picker_key(KeyCode::Up);
+                }
+                MouseEventKind::Down(MouseButton::Left)
+                    if self.picker_area.contains((event.column, event.row).into()) =>
+                {
+                    let index =
+                        self.picker_state.offset() + usize::from(event.row - self.picker_area.y);
+                    if index < self.targets.len() {
+                        self.picker = None;
+                        return self.select_target(index);
+                    }
+                }
+                _ => {}
+            }
+            return false;
+        }
+        if let Some(o) = &mut self.overlay {
+            match event.kind {
+                MouseEventKind::ScrollDown => {
+                    o.follow = false;
+                    o.scroll = o.scroll.saturating_add(3);
+                }
+                MouseEventKind::ScrollUp => {
+                    o.follow = false;
+                    o.scroll = o.scroll.saturating_sub(3);
+                }
+                _ => {}
+            }
+            return false;
+        }
+        match event.kind {
+            MouseEventKind::ScrollDown => self.move_cursor(3),
+            MouseEventKind::ScrollUp => self.move_cursor(-3),
+            MouseEventKind::Down(MouseButton::Left) => {
+                if let Some((index, _)) = self
+                    .machine_tabs
+                    .iter()
+                    .find(|(_, r)| r.contains((event.column, event.row).into()))
+                {
+                    return self.select_target(*index);
+                }
+                if self.machine_bar.contains((event.column, event.row).into()) {
+                    if event.column < self.machine_bar.x + 2
+                        && self.machine_tabs.first().is_some_and(|(i, _)| *i > 0)
+                    {
+                        return self.switch(-1);
+                    }
+                    if event.column >= self.machine_bar.right().saturating_sub(2)
+                        && self
+                            .machine_tabs
+                            .last()
+                            .is_some_and(|(i, _)| *i + 1 < self.targets.len())
+                    {
+                        return self.switch(1);
+                    }
+                } else if event.row == 0 {
+                    self.open_picker();
+                } else if self.last_area.contains((event.column, event.row).into()) {
+                    let index =
+                        self.list_state.offset() + usize::from(event.row - self.last_area.y);
+                    if index == self.cursor {
+                        self.toggle();
+                    } else {
+                        self.cursor = index.min(self.rows.len().saturating_sub(1));
+                    }
+                }
+            }
+            _ => {}
+        }
+        false
+    }
+    fn update_targets(
+        &mut self,
+        targets: Vec<Snapshot>,
+        errors: Vec<String>,
+        preferred: Option<&str>,
+    ) -> bool {
+        if targets.is_empty() && !errors.is_empty() && !self.targets.is_empty() {
+            self.message = errors.join("; ");
+            for s in self.cache.values_mut() {
+                s.stale = true;
+            }
+            self.pending = None;
+            self.generation += 1;
+            return true;
+        }
+        let old = self.target().cloned();
+        let picker_key = self
+            .picker
+            .and_then(|i| self.targets.get(i))
+            .map(|t| t.key.clone());
+        self.targets = targets;
+        self.selected = selected_index(
+            &self.targets,
+            old.as_ref().map(|t| t.key.as_str()).or(preferred),
+        );
+        self.picker = picker_key.and_then(|key| self.targets.iter().position(|t| t.key == key));
+        let identity = |t: &Snapshot| {
+            (
+                t.key.clone(),
+                t.endpoint.clone(),
+                t.vm.as_ref().map(|v| v.status.clone()),
+            )
+        };
+        let changed = old.as_ref().map(identity) != self.target().map(identity);
+        if changed {
+            self.generation += 1;
+            self.pending = None;
+            self.overlay = None;
+            self.cursor = 0;
+            self.list_state = ListState::default();
+            self.last_fetch = Instant::now() - Duration::from_secs(60);
+        }
+        self.cache.retain(|k, s| {
+            self.targets
+                .iter()
+                .any(|t| &t.key == k && t.endpoint == s.endpoint)
+        });
+        self.histories.retain(|k, _| {
+            self.targets
+                .iter()
+                .any(|t| k.starts_with(&format!("{}|", t.key)))
+        });
+        for target in &self.targets {
+            if let Some(s) = self.cache.get_mut(&target.key) {
+                s.vm = target.vm.clone();
+                if target.vm.as_ref().is_some_and(|v| v.status != "Running") {
+                    s.state = "vm_stopped".into();
+                    s.containers.clear();
+                    s.images.clear();
+                }
+            }
+        }
+        self.message = errors.join("; ");
+        self.rebuild();
+        changed
+    }
+    fn push_log(&mut self, line: LogLine) {
+        if !self.overlay.as_ref().is_some_and(|o| o.logs) {
+            return;
+        }
+        self.log_bytes += line.text.len() + line.prefix.len();
+        self.logs.push_back(line);
+        while self.logs.len() > 2000 || self.log_bytes > 2 * 1024 * 1024 {
+            if let Some(old) = self.logs.pop_front() {
+                self.log_bytes -= old.text.len() + old.prefix.len();
+                if let Some(o) = &mut self.overlay {
+                    if !o.follow {
+                        o.scroll = o.scroll.saturating_sub(1);
+                    }
+                }
+            } else {
+                break;
+            }
+        }
     }
     fn help(&mut self) {
-        self.overlay=Some(Overlay{title:"Help".into(),text:"Navigate  ↑↓ / jk   PgUp/PgDn   g/G\nMachines  [ ] / ← → / Tab\nFold      Space / Enter\nLogs      l / Enter on container\nInspect   i    Storage D\nFilter    /    Clear Esc    Sort o\nActions   s start · x stop · R restart · X remove\nImages    p prune dangling\nShell     e\nRefresh   r    Theme t    Help ?    Quit q\n\nLogs: f follow · w wrap · ↑↓ scroll · Esc back\nAll actions confirm and bind to the original target.\nRemote and stale targets are read-only.\nArchive recording and search require the full edition.".into(),wrap:true,..Default::default()});
+        self.overlay=Some(Overlay{title:"Help".into(),text:"Navigate  ↑↓ / jk   PgUp/PgDn   g/G\nMachines  [ ] / ← → / Tab · m chooser\nFold      Space / Enter\nLogs      l / Enter on container\nInspect   i    Storage D\nFilter    /    Clear Esc    Sort o\nActions   s start · x stop · R restart · X remove\nImages    p prune dangling\nShell     e\nRefresh   r    Theme t    Help ?    Quit q\n\nLogs: f follow · w wrap · ↑↓ scroll · Esc back\nAll actions confirm and bind to the original target.\nRemote and stale targets are read-only.\nArchive recording and search require the full edition.".into(),wrap:true,..Default::default()});
     }
 }
 fn padded(s: &str, width: usize) -> String {
@@ -589,7 +818,7 @@ impl App {
         };
         frame.render_widget(Block::default().style(Style::default().bg(bg).fg(fg)), area);
         let layout = Layout::vertical([
-            Constraint::Length(2),
+            Constraint::Length(3),
             Constraint::Length(2),
             Constraint::Min(1),
             Constraint::Length(2),
@@ -609,7 +838,7 @@ impl App {
             Span::raw(format!("lite  /  {target}  ")),
             Span::styled(
                 format!(
-                    "{}/{}",
+                    "{}/{} · m machines",
                     if self.targets.is_empty() {
                         0
                     } else {
@@ -621,9 +850,54 @@ impl App {
             ),
         ]);
         frame.render_widget(
-            Paragraph::new(title).block(Block::default().borders(Borders::BOTTOM)),
-            layout[0],
+            Paragraph::new(title),
+            Rect::new(layout[0].x, layout[0].y, layout[0].width, 1),
         );
+        frame.render_widget(Block::default().borders(Borders::BOTTOM), layout[0]);
+        self.machine_bar = Rect::new(area.x, area.y.saturating_add(1), area.width, 1);
+        self.machine_tabs.clear();
+        let labels: Vec<_> = self
+            .targets
+            .iter()
+            .enumerate()
+            .map(|(i, t)| {
+                let (_, color) = self.machine_status(i);
+                let dot = if color == Color::Green { "●" } else { "○" };
+                format!(
+                    "{dot} {}{}",
+                    clean(&t.name),
+                    if t.remote() { " RO" } else { "" }
+                )
+            })
+            .collect();
+        let tabs = crate::navigation::tabs(&labels, self.selected, area.width);
+        if let (Some(first), Some(last)) = (tabs.first(), tabs.last()) {
+            if first.index > 0 {
+                frame.render_widget(
+                    Paragraph::new("‹"),
+                    Rect::new(area.x, self.machine_bar.y, 1, 1),
+                );
+            }
+            if last.index + 1 < self.targets.len() {
+                frame.render_widget(
+                    Paragraph::new("›"),
+                    Rect::new(area.right().saturating_sub(1), self.machine_bar.y, 1, 1),
+                );
+            }
+        }
+        for tab in tabs {
+            let rect = Rect::new(area.x + tab.x, self.machine_bar.y, tab.width, 1);
+            let style = if tab.index == self.selected {
+                Style::default()
+                    .bg(Color::Cyan)
+                    .fg(Color::Black)
+                    .add_modifier(Modifier::BOLD)
+            } else {
+                Style::default().fg(self.machine_status(tab.index).1)
+            };
+            frame.render_widget(Paragraph::new(tab.text).style(style), rect);
+            self.machine_tabs.push((tab.index, rect));
+        }
         let status = if self.filtering || !self.query.is_empty() {
             format!(
                 " /{}{}  · sort: {}",
@@ -706,7 +980,7 @@ impl App {
             }
         }
         let footer = if self.message.is_empty() {
-            " ↑↓ move  [ ] machine  / filter  i inspect  l logs  ? help  q quit".into()
+            " ↑↓ move  ←→ machine  m choose  / filter  i inspect  l logs  ? help  q quit".into()
         } else {
             format!(" {}", clean(&self.message))
         };
@@ -714,7 +988,7 @@ impl App {
             Paragraph::new(footer).block(Block::default().borders(Borders::TOP)),
             layout[3],
         );
-        if let Some(overlay) = &self.overlay {
+        if let Some(overlay) = &mut self.overlay {
             frame.render_widget(Clear, area);
             let block = Block::default()
                 .borders(Borders::ALL)
@@ -723,41 +997,51 @@ impl App {
             let inner = block.inner(area);
             frame.render_widget(block, area);
             if overlay.logs {
-                let lines: Vec<Line> = self
-                    .logs
-                    .iter()
-                    .map(|l| {
-                        Line::from(vec![
-                            Span::styled(
-                                format!(
-                                    "{}{}",
-                                    if l.prefix.is_empty() { "" } else { &l.prefix },
-                                    if l.prefix.is_empty() { "" } else { " │ " }
-                                ),
-                                Style::default().fg(Color::Cyan),
-                            ),
-                            Span::styled(
-                                clean(&l.text),
-                                Style::default().fg(if l.stream == "stderr" {
-                                    Color::Red
-                                } else {
-                                    fg
-                                }),
-                            ),
-                        ])
-                    })
-                    .collect();
-                let height = inner.height as usize;
-                let scroll = if overlay.follow {
-                    lines.len().saturating_sub(height).min(u16::MAX as usize) as u16
-                } else {
-                    overlay.scroll
+                let line = |l: &LogLine| {
+                    Line::from(vec![
+                        Span::styled(
+                            if l.prefix.is_empty() {
+                                String::new()
+                            } else {
+                                format!("{} │ ", clean(&l.prefix))
+                            },
+                            Style::default().fg(Color::Cyan),
+                        ),
+                        Span::styled(
+                            clean(&l.text),
+                            Style::default().fg(if l.stream == "stderr" { Color::Red } else { fg }),
+                        ),
+                    ])
                 };
-                let mut p = Paragraph::new(Text::from(lines)).scroll((scroll, 0));
                 if overlay.wrap {
-                    p = p.wrap(Wrap { trim: false });
+                    let lines: Vec<_> = self.logs.iter().map(line).collect();
+                    let paragraph = Paragraph::new(Text::from(lines)).wrap(Wrap { trim: false });
+                    let max = paragraph
+                        .line_count(inner.width)
+                        .saturating_sub(inner.height as usize)
+                        .min(u16::MAX as usize) as u16;
+                    overlay.scroll = if overlay.follow {
+                        max
+                    } else {
+                        overlay.scroll.min(max)
+                    };
+                    frame.render_widget(paragraph.scroll((overlay.scroll, 0)), inner);
+                } else {
+                    let max = self.logs.len().saturating_sub(inner.height as usize) as u16;
+                    overlay.scroll = if overlay.follow {
+                        max
+                    } else {
+                        overlay.scroll.min(max)
+                    };
+                    let lines: Vec<_> = self
+                        .logs
+                        .iter()
+                        .skip(overlay.scroll as usize)
+                        .take(inner.height as usize)
+                        .map(line)
+                        .collect();
+                    frame.render_widget(Paragraph::new(Text::from(lines)), inner);
                 }
-                frame.render_widget(p, inner);
             } else {
                 let mut p = Paragraph::new(overlay.text.clone()).scroll((overlay.scroll, 0));
                 if overlay.wrap {
@@ -765,6 +1049,51 @@ impl App {
                 }
                 frame.render_widget(p, inner);
             }
+        }
+        if let Some(index) = self.picker {
+            let rect = Rect::new(
+                area.x + area.width.saturating_sub(76) / 2,
+                area.y + area.height.saturating_sub(18) / 2,
+                area.width.min(76),
+                area.height.min(18),
+            );
+            frame.render_widget(Clear, rect);
+            let block = Block::default()
+                .borders(Borders::ALL)
+                .title(" Machines · ↑↓ select · Enter open · Esc cancel ")
+                .style(Style::default().bg(bg).fg(fg));
+            self.picker_area = block.inner(rect);
+            frame.render_widget(block, rect);
+            let rows: Vec<_> = self
+                .targets
+                .iter()
+                .enumerate()
+                .map(|(i, t)| {
+                    let (status, color) = self.machine_status(i);
+                    ListItem::new(Line::from(vec![
+                        Span::styled(
+                            if i == self.selected { "● " } else { "  " },
+                            Style::default().fg(Color::Cyan),
+                        ),
+                        Span::raw(format!("{}  ", clean(&t.key))),
+                        Span::styled(
+                            format!("{status}{}", if t.remote() { " · read-only" } else { "" }),
+                            Style::default().fg(color),
+                        ),
+                    ]))
+                })
+                .collect();
+            self.picker_state.select(Some(index));
+            frame.render_stateful_widget(
+                List::new(rows).highlight_style(
+                    Style::default()
+                        .bg(Color::Cyan)
+                        .fg(Color::Black)
+                        .add_modifier(Modifier::BOLD),
+                ),
+                self.picker_area,
+                &mut self.picker_state,
+            );
         }
         if let Some(p) = &self.pending {
             let width = area.width.saturating_sub(4).min(80);
@@ -1103,6 +1432,8 @@ pub async fn run(args: Args) -> Result<()> {
     let started = Instant::now();
     let mut last_discovery = Instant::now() - Duration::from_secs(60);
     let mut dirty = true;
+    let mut logs_dirty = false;
+    let mut last_draw = Instant::now();
     let mut quit = false;
     let mut script: VecDeque<String> = args
         .keys
@@ -1113,30 +1444,43 @@ pub async fn run(args: Args) -> Result<()> {
         .collect();
     let mut next_key = Instant::now() + Duration::from_millis(400);
     while !quit {
-        if dirty {
+        if dirty || (logs_dirty && last_draw.elapsed() >= Duration::from_millis(50)) {
             terminal.draw(|f| app.draw(f))?;
             dirty = false;
+            logs_dirty = false;
+            last_draw = Instant::now();
         }
         let mut input = None;
         tokio::select! {
             _=tokio::signal::ctrl_c()=>{quit=true;},
             event=events.next()=>{match event{Some(Ok(Event::Key(k))) if k.kind!=KeyEventKind::Release=>input=Some(k),Some(Ok(Event::Resize(..)))=>dirty=true,Some(Ok(Event::FocusLost))=>app.blurred=true,Some(Ok(Event::FocusGained))=>app.blurred=false,
-                Some(Ok(Event::Mouse(m)))=>{match m.kind{MouseEventKind::ScrollDown=>app.move_cursor(3),MouseEventKind::ScrollUp=>app.move_cursor(-3),MouseEventKind::Down(_)=>{
-                    if m.row<2 {app.switch(1);abort(&mut fetch_task);}else if app.last_area.contains((m.column,m.row).into()){let i=app.list_state.offset()+(m.row-app.last_area.y) as usize;if i==app.cursor{app.toggle();}else{app.cursor=i.min(app.rows.len().saturating_sub(1));}}},_=>{}}dirty=true;},Some(Err(e))=>return Err(e.into()),None=>quit=true,_=>{}}},
+                Some(Ok(Event::Mouse(m)))=>{if app.mouse(m){abort(&mut fetch_task);abort(&mut detail_task);for t in log_tasks.drain(..){t.abort();}}dirty=true;},Some(Err(e))=>return Err(e.into()),None=>quit=true,_=>{}}},
             message=rx.recv()=>{if let Some(m)=message{match m{
-                Message::Discovery(targets,errors)=>{if targets.is_empty()&&!errors.is_empty()&&!app.targets.is_empty(){app.message=errors.join("; ");for s in app.cache.values_mut(){s.stale=true;}app.pending=None;dirty=true;continue;}let old=app.target().cloned();let first=app.targets.is_empty();app.targets=targets;app.selected=if first{selected_index(&app.targets,args.target.as_deref())}else{selected_index(&app.targets,old.as_ref().map(|t|t.key.as_str()))};
-                    if old.as_ref().map(|t|(&t.key,&t.endpoint))!=app.target().map(|t|(&t.key,&t.endpoint)){app.generation+=1;app.pending=None;app.overlay=None;abort(&mut fetch_task);abort(&mut detail_task);for t in log_tasks.drain(..){t.abort();}app.last_fetch=Instant::now()-Duration::from_secs(60);}
-                    app.cache.retain(|k,s|app.targets.iter().any(|t|&t.key==k&&t.endpoint==s.endpoint));app.histories.retain(|k,_|app.targets.iter().any(|t|k.starts_with(&format!("{}|",t.key))));for target in &app.targets {if let Some(s)=app.cache.get_mut(&target.key){s.vm=target.vm.clone();if target.vm.as_ref().is_some_and(|v|v.status!="Running"){s.state="vm_stopped".into();s.containers.clear();s.images.clear();}}}app.message=errors.join("; ");app.rebuild();},
+                Message::Discovery(targets,errors)=>{if app.update_targets(targets,errors,args.target.as_deref()){abort(&mut fetch_task);abort(&mut detail_task);for t in log_tasks.drain(..){t.abort();}}},
                 Message::Snapshot(generation,s)=>if generation==app.generation{app.apply(*s);},
                 Message::Detail(generation,text)=>if generation==app.generation{if let Some(o)=&mut app.overlay{o.text=text;}},
                 Message::Action(text)=>{app.message=text;app.last_fetch=Instant::now()-Duration::from_secs(60);}
             }dirty=true;}},
+            line = log_rx.recv() => {
+                if let Some(line) = line {
+                    app.push_log(line);
+                    // Keep draining independently of the paint timer. Limit each batch
+                    // so discovery, input and shutdown remain responsive under load.
+                    let budget = Instant::now();
+                    while budget.elapsed() < Duration::from_millis(1) {
+                        match log_rx.try_recv() {
+                            Ok(line) => app.push_log(line),
+                            Err(_) => break,
+                        }
+                    }
+                    logs_dirty = true;
+                }
+            },
             _=heartbeat.tick()=>{
                 if args.quit_after.is_some_and(|s|started.elapsed().as_secs_f64()>=s){quit=true;}
                 if fixture.is_none(){if last_discovery.elapsed()>=Duration::from_secs(if app.blurred{40}else{10})&&discovery_task.as_ref().is_none_or(|h:&JoinHandle<()>|h.is_finished()){
                     let tx=tx.clone();let contexts=!args.no_contexts;discovery_task=Some(tokio::spawn(async move{let (t,e)=backend::discover(contexts).await;let _=tx.send(Message::Discovery(t,e)).await;}));last_discovery=Instant::now();}
                     let interval=if app.target().is_some_and(Snapshot::remote){15}else{2}*if app.blurred{4}else{1};if app.last_fetch.elapsed()>=Duration::from_secs(interval){fetch(&mut app,&backend,&tx,&mut fetch_task);}}
-                let mut n=0;while let Ok(line)=log_rx.try_recv(){if app.overlay.as_ref().is_some_and(|o|o.logs){app.log_bytes+=line.text.len()+line.prefix.len();app.logs.push_back(line);while app.logs.len()>2000||app.log_bytes>2*1024*1024 {if let Some(old)=app.logs.pop_front(){app.log_bytes-=old.text.len()+old.prefix.len();}else{break;}}dirty=true;}n+=1;if n>=256{break;}}
                 if Instant::now()>=next_key{if let Some(token)=script.pop_front(){if let Some(wait)=token.strip_prefix("wait:").and_then(|s|s.parse::<f64>().ok()).filter(|n|n.is_finite()&&*n>=0.0){next_key=Instant::now()+Duration::from_secs_f64(wait);}else{input=scripted_key(&token);next_key=Instant::now()+Duration::from_millis(200);}}}
             }
         }
@@ -1146,6 +1490,16 @@ pub async fn run(args: Args) -> Result<()> {
         dirty = true;
         if key.code == KeyCode::Char('c') && key.modifiers.contains(KeyModifiers::CONTROL) {
             quit = true;
+            continue;
+        }
+        if app.picker.is_some() {
+            if app.picker_key(key.code) {
+                abort(&mut fetch_task);
+                abort(&mut detail_task);
+                for t in log_tasks.drain(..) {
+                    t.abort();
+                }
+            }
             continue;
         }
         if let Some(p) = &mut app.pending {
@@ -1297,6 +1651,7 @@ pub async fn run(args: Args) -> Result<()> {
                 abort(&mut fetch_task);
                 abort(&mut detail_task);
             }
+            KeyCode::Char('m') => app.open_picker(),
             KeyCode::Char('/') => app.filtering = true,
             KeyCode::Esc => {
                 app.query.clear();
@@ -1449,5 +1804,157 @@ mod tests {
             t.draw(|f| a.draw(f)).unwrap();
         }
         assert_eq!(padded("界界", 3), "界 ");
+    }
+}
+
+#[cfg(test)]
+mod navigation_tests {
+    use super::*;
+    fn app() -> App {
+        App::new(
+            Document::parse(include_str!("../../spec/fixtures/snapshots/demo.json"))
+                .unwrap()
+                .targets,
+            0,
+            false,
+        )
+    }
+    fn draw(a: &mut App, width: u16) -> String {
+        let mut t = Terminal::new(ratatui::backend::TestBackend::new(width, 30)).unwrap();
+        t.draw(|f| a.draw(f)).unwrap();
+        let b = t.backend().buffer();
+        (0..30)
+            .map(|y| (0..width).map(|x| b[(x, y)].symbol()).collect::<String>())
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+    #[test]
+    fn arrows_and_clicks_show_the_destination() {
+        let mut a = app();
+        let before = draw(&mut a, 100);
+        assert!(before.contains("ci"));
+        assert!(before.contains("k3s"));
+        // Blank strip margins are inert; only visible overflow arrows navigate.
+        assert!(!a.mouse(MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: 99,
+            row: 1,
+            modifiers: KeyModifiers::NONE,
+        }));
+        assert_eq!(a.selected, 0);
+        assert!(a.switch(1));
+        let screen = draw(&mut a, 40);
+        assert!(screen.contains("ci"));
+        assert!(a.machine_tabs.iter().any(|(i, _)| *i == a.selected));
+        let (index, rect) = a
+            .machine_tabs
+            .iter()
+            .find(|(i, _)| *i != a.selected)
+            .copied()
+            .unwrap();
+        assert!(a.mouse(MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: rect.x,
+            row: rect.y,
+            modifiers: KeyModifiers::NONE
+        }));
+        assert_eq!(a.selected, index);
+    }
+    #[test]
+    fn picker_previews_without_switching_and_can_cancel() {
+        let mut a = app();
+        a.open_picker();
+        a.picker_key(KeyCode::Down);
+        assert_eq!(a.selected, 0);
+        let screen = draw(&mut a, 60);
+        assert!(screen.contains("lima:ci"));
+        assert!(screen.contains("read-only"));
+        a.picker_key(KeyCode::Esc);
+        assert_eq!(a.selected, 0);
+        a.open_picker();
+        a.picker_key(KeyCode::Down);
+        assert!(a.picker_key(KeyCode::Enter));
+        assert_eq!(a.selected, 1);
+    }
+    #[test]
+    fn stopped_discovery_invalidates_pending_refresh() {
+        let mut a = app();
+        let generation = a.generation;
+        let mut targets = a.targets.clone();
+        targets[0].vm.as_mut().unwrap().status = "Stopped".into();
+        assert!(a.update_targets(targets, vec![], None));
+        assert!(a.generation > generation);
+        assert_eq!(a.snapshot().unwrap().state, "vm_stopped");
+        assert!(!a.snapshot().unwrap().writable());
+    }
+    #[test]
+    fn discovery_reordering_keeps_picker_identity() {
+        let mut a = app();
+        a.open_picker();
+        a.picker_key(KeyCode::Down);
+        let key = a.targets[a.picker.unwrap()].key.clone();
+        let mut targets = a.targets.clone();
+        targets.reverse();
+        a.update_targets(targets, vec![], None);
+        assert_eq!(a.targets[a.picker.unwrap()].key, key);
+    }
+    #[test]
+    fn overlay_mouse_never_switches_target_or_changes_underlying_cursor() {
+        let mut a = app();
+        a.help();
+        let cursor = a.cursor;
+        for kind in [
+            MouseEventKind::ScrollDown,
+            MouseEventKind::Down(MouseButton::Left),
+        ] {
+            assert!(!a.mouse(MouseEvent {
+                kind,
+                column: 2,
+                row: 1,
+                modifiers: KeyModifiers::NONE
+            }));
+        }
+        assert_eq!(a.selected, 0);
+        assert_eq!(a.cursor, cursor);
+    }
+    #[test]
+    fn log_tail_is_visible_with_and_without_wrapping() {
+        let mut a = app();
+        a.overlay = Some(Overlay {
+            logs: true,
+            follow: true,
+            ..Default::default()
+        });
+        for n in 0..2500 {
+            a.push_log(LogLine {
+                stream: "stdout".into(),
+                prefix: String::new(),
+                text: format!("{n} {} tail-{n}", "wide ".repeat(30)),
+            });
+        }
+        assert_eq!(a.logs.len(), 2000);
+        assert!(draw(&mut a, 60).contains("2499"));
+        let bottom = a.overlay.as_ref().unwrap().scroll;
+        assert!(bottom > 0);
+        a.overlay.as_mut().unwrap().wrap = true;
+        assert!(draw(&mut a, 60).contains("tail-2499"));
+        assert!(a.log_bytes <= 2 * 1024 * 1024);
+    }
+    #[test]
+    fn large_log_records_remain_byte_bounded() {
+        let mut a = app();
+        a.overlay = Some(Overlay {
+            logs: true,
+            ..Default::default()
+        });
+        for _ in 0..100 {
+            a.push_log(LogLine {
+                stream: "stdout".into(),
+                prefix: String::new(),
+                text: "x".repeat(65536),
+            });
+        }
+        assert_eq!(a.logs.len(), 32);
+        assert_eq!(a.log_bytes, 2 * 1024 * 1024);
     }
 }

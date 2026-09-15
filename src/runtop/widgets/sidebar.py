@@ -1,18 +1,21 @@
-"""Left sidebar: machines + remote contexts, then the Containers / Images sections."""
+"""Left sidebar: a Containers / Images view selector above machines and remote contexts."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Unpack
 
+from rich.console import Group, RenderableType
+from rich.panel import Panel
 from rich.style import Style
 from rich.table import Table
 from rich.text import Text
-from textual import on
+from textual import events, on
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Vertical
 from textual.message import Message
+from textual.widget import Widget
 from textual.widgets import OptionList
 from textual.widgets.option_list import Option
 from typing_extensions import override
@@ -209,57 +212,123 @@ class TargetList(_SideList):
             self.post_message(self.TargetHighlighted(event.option.id))
 
 
-SECTION_GLYPHS = {Section.CONTAINERS: "▦", Section.IMAGES: "◇"}
 SECTION_TITLES = {Section.CONTAINERS: "Containers", Section.IMAGES: "Images"}
 
 
-class SectionList(_SideList):
-    class SectionHighlighted(Message):
+class SectionSelector(Widget, can_focus=True):
+    """A two-way view control; machines remain an independent selection below it."""
+
+    COMPONENT_CLASSES = {"section--active", "section--inactive", "section--caption"}
+    DEFAULT_CSS = """
+    SectionSelector {
+        height: 5;
+        padding: 0 1;
+        & > .section--active { color: $primary; background: $primary 14%; text-style: bold; }
+        & > .section--inactive { color: $foreground-muted; }
+        & > .section--caption { color: $foreground-muted; }
+        &:focus > .section--active { color: $accent; background: $primary 24%; }
+    }
+    """
+    BINDINGS = [
+        Binding("left,h", "select_containers", "Containers", show=False),
+        Binding("right,l", "select_images", "Images", show=False),
+        Binding("space", "toggle_view", "Change view", show=False),
+        Binding("enter", "open_view", "Open view", show=False),
+        Binding("down,j", "machines", "Machines", show=False),
+    ]
+
+    class Changed(Message):
         def __init__(self, section: Section) -> None:
             super().__init__()
             self.section = section
 
+    class Opened(Message):
+        pass
+
+    class MachinesRequested(Message):
+        pass
+
     def __init__(self, **kwargs: Unpack[WidgetKwargs]) -> None:
         super().__init__(**kwargs)
         self._counts: dict[Section, int | None] = {}
-        self._section = Section.CONTAINERS
-        self._syncing = False
+        self.section = Section.CONTAINERS
+        self.tooltip = "View for the selected machine · ← → choose · Enter open · ↓ machines"
 
-    @override
-    def on_mount(self) -> None:
-        self.watch(self.app, "theme", lambda _: self._render_options(), init=False)
-        self._render_options()
+    @property
+    def stacked(self) -> bool:
+        return self.content_size.width < 24
+
+    def on_resize(self) -> None:
+        self.styles.height = 7 if self.stacked else 5
 
     def set_counts(self, counts: dict[Section, int | None], section: Section) -> None:
-        if counts == self._counts and section == self._section and self.option_count:
+        if counts != self._counts or section != self.section:
+            self._counts, self.section = counts, section
+            self.refresh()
+
+    def _choose(self, section: Section) -> None:
+        if section != self.section:
+            self.section = section
+            self.refresh()
+            self.post_message(self.Changed(section))
+
+    def action_select_containers(self) -> None:
+        self._choose(Section.CONTAINERS)
+
+    def action_select_images(self) -> None:
+        self._choose(Section.IMAGES)
+
+    def action_toggle_view(self) -> None:
+        self._choose(Section.IMAGES if self.section is Section.CONTAINERS else Section.CONTAINERS)
+
+    def action_open_view(self) -> None:
+        self.post_message(self.Opened())
+
+    def action_machines(self) -> None:
+        self.post_message(self.MachinesRequested())
+
+    def on_key(self, event: events.Key) -> None:
+        # Handle before the screen's left/right column navigation sees these keys.
+        action = {"left": self.action_select_containers, "h": self.action_select_containers,
+                  "right": self.action_select_images, "l": self.action_select_images,
+                  "space": self.action_toggle_view, "enter": self.action_open_view,
+                  "down": self.action_machines, "j": self.action_machines}.get(event.key)
+        if action is not None:
+            event.stop()
+            event.prevent_default()
+            action()
+
+    def on_click(self, event: events.Click) -> None:
+        offset = event.get_content_offset(self)
+        if offset is None:
             return
-        self._counts, self._section = counts, section
-        self._render_options()
-
-    def _render_options(self) -> None:
-        self._syncing = True
-        try:
-            self.clear_options()
-            opts = [Option(Text("DOCKER", style=self.s("side--header")), id="h:docker", disabled=True)]
-            for sec in Section:
-                n = self._counts.get(sec)
-                left = Text.assemble((SECTION_GLYPHS[sec] + " ", self.s("side--muted")), SECTION_TITLES[sec])
-                opts.append(Option(_row(left, Text("" if n is None else str(n), style=self.s("side--muted"))),
-                                   id=f"s:{sec}"))
-            self.add_options(opts)
-            self.highlighted = self.get_option_index(f"s:{self._section}")
-        finally:
-            self._syncing = False
-
-    @on(OptionList.OptionHighlighted)
-    def _highlighted(self, event: OptionList.OptionHighlighted) -> None:
+        x, y = offset
+        if y < 1:
+            return
         event.stop()
-        if self._syncing or not event.option.id or not event.option.id.startswith("s:"):
-            return
-        sec = Section(event.option.id.removeprefix("s:"))
-        if sec != self._section:
-            self._section = sec
-            self.post_message(self.SectionHighlighted(sec))
+        self.focus()
+        second = y >= 4 if self.stacked else x >= self.content_size.width // 2
+        self._choose(Section.IMAGES if second else Section.CONTAINERS)
+
+    @override
+    def render(self) -> RenderableType:
+        panels = []
+        for section in Section:
+            active = section is self.section
+            style = self.get_component_rich_style("section--active" if active else "section--inactive")
+            count = self._counts.get(section)
+            value = "—" if count is None else str(count)
+            label = Text(SECTION_TITLES[section], justify="center", no_wrap=True)
+            label.append(("  " if self.stacked else "\n") + value)
+            panels.append(Panel(label, padding=0, style=style, border_style=style))
+        caption = Text("VIEW", style=self.get_component_rich_style("section--caption"))
+        if self.stacked:
+            return Group(caption, *panels)
+        grid = Table.grid(expand=True, padding=0)
+        grid.add_column(ratio=1)
+        grid.add_column(ratio=1)
+        grid.add_row(*panels)
+        return Group(caption, grid)
 
 
 class Sidebar(Vertical):
@@ -269,21 +338,23 @@ class Sidebar(Vertical):
         height: 1fr;
         padding: 1 0 0 0;
         background: $background;
-        & > SectionList { margin-bottom: 1; }
+        & > SectionSelector { margin-bottom: 1; }
         & > TargetList { height: auto; max-height: 1fr; }
     }
     """
 
     @override
     def compose(self) -> ComposeResult:
-        yield SectionList(id="sections")
+        yield SectionSelector(id="sections")
         yield TargetList(id="targets")
 
     @on(_SideList.EdgeReached)
     def _edge(self, event: _SideList.EdgeReached) -> None:
         event.stop()
-        lists: list[_SideList] = [self.query_one(SectionList), self.query_one(TargetList)]
-        i = lists.index(event.source)
-        j = i + event.direction
-        if 0 <= j < len(lists):
-            lists[j].focus_edge(event.direction)
+        if event.direction < 0:
+            self.query_one(SectionSelector).focus()
+
+    @on(SectionSelector.MachinesRequested)
+    def _machines_requested(self, event: SectionSelector.MachinesRequested) -> None:
+        event.stop()
+        self.query_one(TargetList).focus_edge(+1)

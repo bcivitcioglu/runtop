@@ -15,7 +15,7 @@ Both editions work with existing local engines and read-only remote contexts.
 Full edition, requiring Python 3.11 or later:
 
 ```sh
-uv tool install 'runtop>=0.1.0'
+uv tool install 'runtop>=0.1.1'
 runtop --demo
 ```
 
@@ -36,6 +36,9 @@ to lite. `--version` and `--edition` identify the executable you are running.
 
 ## Full workspace
 
+- Choose **Containers** or **Images** using the boxed view selector above Machines.
+  The view applies to the selected machine; VMs stay in Machines. Use `←→` on the
+  selector, then Enter to browse its contents.
 - Browse machines and containers grouped by project. `/` filters; `attention`
   finds unhealthy, restarting, dead, and failed containers.
 - Inspect ports, mounts, networks, restart counts, memory failures, and health
@@ -51,10 +54,12 @@ to lite. `--version` and `--edition` identify the executable you are running.
 
 ![Compact workspace](assets/rt/glance.gif)
 
-One target header, one grouped list, and one footer. Columns adapt to terminal
-width. Container statistics and project totals remain close to their rows.
+A visible machine strip, one grouped list, and one footer. The active machine
+stays highlighted as you switch. Columns adapt to terminal width. Container statistics and project totals remain close to their rows.
 
-- `↑↓` / `jk` move; `[` / `]` switch machines; Space folds a section.
+- `↑↓` / `jk` move; `←→` / `[` / `]` switch machines; Space folds a section.
+- `m` opens the machine chooser with names and status. Enter switches; Esc cancels.
+  You can also click a machine in the strip.
 - `/` filters, `o` sorts by name, CPU, or memory, and `r` refreshes.
 - `i` inspects, `l` opens container or project logs, and `D` shows storage.
 - `s`, `x`, `R`, `X` start, stop, restart, or remove selected containers; actions
