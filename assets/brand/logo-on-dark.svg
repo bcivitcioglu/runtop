@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="286" height="64" viewBox="0 0 286 64" role="img" aria-label="runtop">
+  <title>runtop</title>
+  <g transform="rotate(45 32 32)" fill="none" stroke="#e7e5e4" stroke-width="6" stroke-linejoin="round"><rect x="14" y="14" width="12.5" height="12.5" rx="2" fill="#e7e5e4" stroke="#e7e5e4"/><rect x="37.5" y="14" width="12.5" height="12.5" rx="2"/><rect x="14" y="37.5" width="12.5" height="12.5" rx="2"/><rect x="37.5" y="37.5" width="12.5" height="12.5" rx="2"/></g>
+  <g transform="translate(68 0)" fill="none" stroke="#e7e5e4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M 15 45 V 19 M 15 32 A 13 13 0 0 1 28 19"/><path d="M 42 19 V 32 A 13 13 0 0 0 68 32 V 19 M 68 19 V 45"/><path d="M 82 45 V 19 M 82 32 A 13 13 0 0 1 108 32 V 45"/><path d="M 124 11 V 38 A 7 7 0 0 0 131 45 H 134 M 118 19 H 133"/><path d="M 146 32 A 13 13 0 1 1 172 32 A 13 13 0 1 1 146 32"/><path d="M 186 19 V 57 M 186 32 A 13 13 0 1 1 212 32 A 13 13 0 1 1 186 32"/></g>
+</svg>
