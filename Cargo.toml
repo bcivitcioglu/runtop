@@ -1,6 +1,6 @@
 [package]
 name = "runtop"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 rust-version = "1.85"
 description = "A compact terminal workspace for containers and their machines"
@@ -9,7 +9,7 @@ repository = "https://github.com/bcivitcioglu/runtop"
 readme = "rust/README.md"
 keywords = ["containers", "terminal", "monitor", "tui"]
 categories = ["command-line-utilities"]
-include = ["/rust/**", "/spec/fixtures/**", "/Cargo.toml", "/Cargo.lock", "/LICENSE"]
+include = ["/rust/**", "/spec/fixtures/**", "/spec/manual.json", "/Cargo.toml", "/Cargo.lock", "/LICENSE"]
 
 [lib]
 path = "rust/src/lib.rs"

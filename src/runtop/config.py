@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -15,6 +16,8 @@ class Config:
     log_file_mib: int = 8
     log_keep_days: float = 7
     theme: str = "runtop"
+    section: str = "containers"
+    sort: str = "name"
     sidebar_width: int | None = None
     detail_width: int | None = None
     last_target: str | None = None
@@ -37,6 +40,10 @@ def load(path: Path | None = None) -> Config:
     cfg = Config()
     if isinstance(data.get("theme"), str):
         cfg.theme = data["theme"]
+    if data.get("section") in ("containers", "images"):
+        cfg.section = data["section"]
+    if data.get("sort") in ("name", "cpu", "mem"):
+        cfg.sort = data["sort"]
     for name in ("sidebar_width", "detail_width"):
         value = data.get(name)
         low, high = (18, 48) if name == "sidebar_width" else (30, 90)
@@ -59,9 +66,15 @@ def save(cfg: Config, path: Path | None = None) -> bool:
     path = path or config_path()
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(asdict(cfg), indent=2) + "\n")
-        tmp.replace(path)
+        with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, prefix=".config-", delete=False) as file:
+            tmp = Path(file.name)
+            try:
+                file.write(json.dumps(asdict(cfg), indent=2) + "\n")
+                file.flush()
+                os.fsync(file.fileno())
+                tmp.replace(path)
+            finally:
+                tmp.unlink(missing_ok=True)
     except OSError:
         return False
     return True

@@ -13,30 +13,43 @@ use std::{path::PathBuf, time::Duration};
     disable_version_flag = true
 )]
 pub struct Args {
+    /// Print the package version and edition.
     #[arg(long, global = true)]
     pub version: bool,
+    /// Print the selected edition.
     #[arg(long, global = true)]
     pub edition: bool,
+    /// Keep the lite launcher in this edition.
     #[arg(long, global = true)]
     pub lite: bool,
+    /// Use bundled synthetic data without contacting engines.
     #[arg(long, global = true)]
     pub demo: bool,
+    /// Read a saved snapshot instead of live engines.
     #[arg(long, global = true)]
     pub snapshot: Option<PathBuf>,
+    /// Select a target by key or name.
     #[arg(long, short = 't', global = true)]
     pub target: Option<String>,
+    /// Skip context discovery in live mode.
     #[arg(long, global = true)]
     pub no_contexts: bool,
+    /// Disable all local mutations in this session.
     #[arg(long, global = true)]
     pub read_only: bool,
+    /// Disable terminal mouse capture.
     #[arg(long)]
     pub no_mouse: bool,
+    /// Diagnose live discovery and connectivity.
     #[arg(long)]
     pub doctor: bool,
+    /// Print one target as normalized snapshot JSON and exit.
     #[arg(long, value_name = "KEY")]
     pub dump: Option<String>,
+    /// Script TUI keys, including wait:N delays; requires a terminal.
     #[arg(long)]
     pub keys: Option<String>,
+    /// Exit the workspace after this many seconds.
     #[arg(long,value_parser=positive_seconds)]
     pub quit_after: Option<f64>,
     #[command(subcommand)]
@@ -52,16 +65,30 @@ fn positive_seconds(s: &str) -> std::result::Result<f64, String> {
 }
 #[derive(Subcommand, Clone, Debug)]
 pub enum Sub {
+    /// Read the bundled offline manual; --json is intended for agents.
+    Docs {
+        #[arg(default_value = "all")]
+        topic: String,
+        #[arg(long)]
+        list: bool,
+        #[arg(long)]
+        json: bool,
+    },
     /// Print a container or image listing.
     Ps {
+        /// Include non-running containers.
         #[arg(short = 'a', long)]
         all: bool,
+        /// Include remote targets in the listing.
         #[arg(long)]
         contexts: bool,
+        /// Print the image table; JSON retains the snapshot schema.
         #[arg(long)]
         images: bool,
+        /// Request local CPU and memory samples.
         #[arg(long)]
         stats: bool,
+        /// Write snapshot JSON to standard output.
         #[arg(long)]
         json: bool,
     },
@@ -96,6 +123,9 @@ pub async fn run(args: Args) -> Result<i32> {
     if args.edition {
         println!("lite");
         return Ok(0);
+    }
+    if let Some(Sub::Docs { topic, list, json }) = &args.command {
+        return Ok(crate::manual::run(topic, *list, *json));
     }
     if matches!(args.command, Some(Sub::Logs { .. })) {
         bail!("archive commands require the full edition");

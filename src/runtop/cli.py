@@ -1,4 +1,4 @@
-"""runtop: a TUI Docker workspace in the style of a desktop app, for Lima VMs."""
+"""A terminal workspace for containers and their machines."""
 
 from __future__ import annotations
 
@@ -11,9 +11,16 @@ from runtop import __version__
 
 
 def _parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="runtop", description=__doc__)
-    p.add_argument("--version", action="version", version=f"runtop {__version__} (full)")
-    p.add_argument("--edition", action="version", version="full")
+    p = argparse.ArgumentParser(
+        prog="runtop", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="Commands:\n  docs    Read the offline manual (runtop docs --json)\n"
+               "  ps      List containers or images (runtop ps --help)\n"
+               "  logs    Record, export and search archives (runtop logs --help)\n\n"
+               "Run without a command to open the workspace. Press ? inside it for keys.",
+    )
+    p.add_argument("--version", action="version", version=f"runtop {__version__} (full)",
+                   help="print the package version and edition")
+    p.add_argument("--edition", action="version", version="full", help="print the selected edition")
     p.add_argument("--doctor", action="store_true", help="diagnose discovery and daemon connectivity")
     p.add_argument("--demo", action="store_true", help="use the bundled demo snapshot instead of real daemons")
     p.add_argument("--snapshot", metavar="FILE", help="use a runtop.snapshot/v1 file instead of real daemons")
@@ -55,6 +62,10 @@ async def dump(key: str, *, demo: bool, snapshot: str | None) -> int:
 
 def main(argv: list[str] | None = None) -> None:
     argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "docs":
+        from runtop.manual import main as docs_main
+
+        raise SystemExit(docs_main(argv[1:]))
     if argv and argv[0] == "ps":
         from runtop.ps_cli import main as ps_main
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2 — 2026-09-15
+
+- Offline documentation in both editions, with topic selection and JSON for agents.
+- Public documentation site, shared with the bundled manual and checked for drift.
+- Guided installation of the latest edition, automatic full-edition dependency setup,
+  verified lite downloads, and shell PATH setup for the default install directory.
+- Remembered machine, theme, sorting and view settings in both workspaces.
+- Reproducible client benchmark script, raw observations, and qualified performance documentation.
+- A new mark and wordmark, used in the README, the documentation site and its favicon.
+
 ## 0.1.1 — 2026-09-15
 
 - Boxed Containers / Images selector in full, independent of machine selection.

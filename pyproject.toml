@@ -1,6 +1,6 @@
 [project]
 name = "runtop"
-version = "0.1.1"
+version = "0.1.2"
 description = "A terminal workspace for containers and their machines"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -46,6 +46,10 @@ pattern = '(!\[[^\]]*\]\()(?!https?://)'
 replacement = '\1https://raw.githubusercontent.com/bcivitcioglu/runtop/master/'
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '((?:src|srcset)=")(?!https?://)'
+replacement = '\1https://raw.githubusercontent.com/bcivitcioglu/runtop/master/'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 pattern = '((?<!!)\[[^\]]*\]\()(?!https?://|#)'
 replacement = '\1https://github.com/bcivitcioglu/runtop/blob/master/'
 
@@ -54,9 +58,10 @@ packages = ["src/runtop"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "spec/fixtures/snapshots/demo.json" = "runtop/resources/demo.json"
+"spec/manual.json" = "runtop/resources/manual.json"
 
 [tool.hatch.build.targets.sdist]
-include = ["src/runtop", "LICENSE", "README.md", "pyproject.toml", "spec/fixtures/snapshots/demo.json"]
+include = ["src/runtop", "LICENSE", "README.md", "pyproject.toml", "spec/fixtures/snapshots/demo.json", "spec/manual.json"]
 
 [dependency-groups]
 dev = [
@@ -65,6 +70,9 @@ dev = [
     "pytest-textual-snapshot>=1.0.0",
     "ruff>=0.16.7",
     "ty>=0.0.80",
+]
+docs = [
+    "mkdocs>=1.6,<2",
 ]
 
 [tool.pytest.ini_options]

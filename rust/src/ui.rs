@@ -1414,8 +1414,29 @@ pub async fn run(args: Args) -> Result<()> {
         .as_ref()
         .map(|d| d.targets.clone())
         .unwrap_or_default();
-    let selected = selected_index(&initial, args.target.as_deref());
+    let preferences_path = if fixture.is_none() {
+        crate::preferences::Preferences::path()
+    } else {
+        None
+    };
+    let preferences = preferences_path
+        .as_deref()
+        .map(crate::preferences::Preferences::load)
+        .unwrap_or_default();
+    let preferred = args.target.clone().or(preferences.last_target.clone());
+    let selected = selected_index(&initial, preferred.as_deref());
     let mut app = App::new(initial, selected, args.read_only);
+    if preferences_path.is_some() {
+        app.light = match std::env::var("RUNTOP_THEME").as_deref() {
+            Ok("light") => true,
+            Ok("dark") => false,
+            _ => preferences.light,
+        };
+        app.sort = preferences.sort;
+        app.folded = preferences.folded;
+        app.images_open = preferences.images_open;
+        app.rebuild();
+    }
     let backend = Backend::default();
     let (tx, mut rx) = mpsc::channel::<Message>(16);
     let (log_tx, mut log_rx) = mpsc::channel::<LogLine>(256);
@@ -1456,7 +1477,7 @@ pub async fn run(args: Args) -> Result<()> {
             event=events.next()=>{match event{Some(Ok(Event::Key(k))) if k.kind!=KeyEventKind::Release=>input=Some(k),Some(Ok(Event::Resize(..)))=>dirty=true,Some(Ok(Event::FocusLost))=>app.blurred=true,Some(Ok(Event::FocusGained))=>app.blurred=false,
                 Some(Ok(Event::Mouse(m)))=>{if app.mouse(m){abort(&mut fetch_task);abort(&mut detail_task);for t in log_tasks.drain(..){t.abort();}}dirty=true;},Some(Err(e))=>return Err(e.into()),None=>quit=true,_=>{}}},
             message=rx.recv()=>{if let Some(m)=message{match m{
-                Message::Discovery(targets,errors)=>{if app.update_targets(targets,errors,args.target.as_deref()){abort(&mut fetch_task);abort(&mut detail_task);for t in log_tasks.drain(..){t.abort();}}},
+                Message::Discovery(targets,errors)=>{if app.update_targets(targets,errors,preferred.as_deref()){abort(&mut fetch_task);abort(&mut detail_task);for t in log_tasks.drain(..){t.abort();}}},
                 Message::Snapshot(generation,s)=>if generation==app.generation{app.apply(*s);},
                 Message::Detail(generation,text)=>if generation==app.generation{if let Some(o)=&mut app.overlay{o.text=text;}},
                 Message::Action(text)=>{app.message=text;app.last_fetch=Instant::now()-Duration::from_secs(60);}
@@ -1717,6 +1738,23 @@ pub async fn run(args: Args) -> Result<()> {
     if let Some(task) = action_task {
         task.abort();
         let _ = task.await;
+    }
+    let saved = if let Some(path) = preferences_path {
+        crate::preferences::Preferences {
+            last_target: app.target().map(|t| t.key.clone()).or(preferred),
+            light: app.light,
+            sort: app.sort,
+            folded: app.folded.clone(),
+            images_open: app.images_open,
+        }
+        .save(&path)
+    } else {
+        Ok(())
+    };
+    drop(terminal);
+    drop(_guard);
+    if let Err(error) = saved {
+        eprintln!("runtop: could not save preferences: {error}");
     }
     Ok(())
 }

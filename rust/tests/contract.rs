@@ -522,3 +522,37 @@ async fn missing_socket_is_not_empty_success() {
     let s = Backend::default().containers(&t).await;
     assert_eq!(s.state, "no_docker_socket");
 }
+
+#[test]
+fn offline_manual_matches_shared_bundle() {
+    let bin = env!("CARGO_BIN_EXE_rt");
+    let out = std::process::Command::new(bin)
+        .args(["docs", "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let result: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    let expected: serde_json::Value =
+        serde_json::from_str(include_str!("../../spec/manual.json")).unwrap();
+    assert_eq!(result["topics"], expected["topics"]);
+    assert_eq!(result["edition"], "lite");
+    assert_eq!(result["schema"], "runtop.docs/v1");
+    let out = std::process::Command::new(bin)
+        .args(["docs", "--list", "--json"])
+        .output()
+        .unwrap();
+    let result: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert!(
+        result["topics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|t| t.get("content").is_none())
+    );
+    let out = std::process::Command::new(bin)
+        .args(["docs", "missing-topic"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    assert!(out.stdout.is_empty());
+}

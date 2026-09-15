@@ -299,6 +299,7 @@ class RuntopApp(App[None]):
         screen = self.main
         if screen is not None and screen.is_mounted:
             cfg.sidebar_width, cfg.detail_width = screen.column_widths()
+            cfg.section, cfg.sort = screen.section.value, screen.sort
         configmod.save(cfg)
 
     @override

@@ -153,6 +153,9 @@ class MainScreen(Screen[None]):
         yield RuntopFooter(id="footer")
 
     def on_mount(self) -> None:
+        if self.lapp.config is not None:
+            self.section = Section(self.lapp.config.section)
+            self.sort = self.lapp.config.sort
         self.set_interval(0.5, self._recording_status)
         self._recording_status()
         cfg = self.lapp.config

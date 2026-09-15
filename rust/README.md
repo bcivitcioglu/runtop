@@ -1,5 +1,7 @@
 # runtop lite
 
+<img src="https://raw.githubusercontent.com/bcivitcioglu/runtop/master/assets/brand/icon-512.png" alt="runtop" width="64" height="64">
+
 A compact terminal workspace for containers and their machines.
 
 ```sh

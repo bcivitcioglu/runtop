@@ -1,4 +1,9 @@
-# runtop
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/logo-on-dark.svg">
+    <img alt="runtop" src="assets/brand/logo-on-light.svg" width="286" height="64">
+  </picture>
+</h1>
 
 A terminal workspace for containers and their machines.
 MIT licensed for personal and commercial use.
@@ -10,12 +15,18 @@ project logs, archive recording, search, and mouse-driven workspace controls.
 Choose **lite** for a compact screen, fast startup, and a small standalone executable.
 Both editions work with existing local engines and read-only remote contexts.
 
+Documentation is available [online](https://bcivitcioglu.github.io/runtop/) and
+inside either edition: `runtop docs`, `rt docs agents`, or `runtop docs --json`.
+
 ## Install
+
+For installation without a compiler, follow the [guided installer](docs/INSTALL.md).
+It handles edition selection, updates and full-edition dependencies.
 
 Full edition, requiring Python 3.11 or later:
 
 ```sh
-uv tool install 'runtop>=0.1.1'
+uv tool install 'runtop>=0.1.2'
 runtop --demo
 ```
 
@@ -73,6 +84,9 @@ selected sources. Archive recording, export, and archive search belong to full.
 
 ## Listings and diagnostics
 
+See the [CLI reference](docs/CLI.md) for all commands, options, edition differences,
+JSON output and exit codes. `runtop ps --help` and `runtop logs --help` show command help.
+
 ```sh
 runtop ps -a --json
 rt ps -a --stats
@@ -117,6 +131,14 @@ Archives retain capture time, source identity, output stream, message, and
 truncation markers. `--since` filters capture time. Queue or disk errors stop
 capture visibly. Recording follows existing container IDs and does not reconnect
 across their recreation. Saved output may contain application secrets.
+
+## Resource use
+
+On a 24-container fixture, lite 0.1.1 displayed its first data frame in 13 ms and
+used 8.3 MiB of steady process memory; full displayed data in 325 ms and used
+69.6 MiB. These are medians of five warm-cache runs on one ARM64 machine, excluding
+engine I/O and terminal rendering. See [raw results, reproducible commands and
+measurement limits](docs/PERFORMANCE.md), including a separate sustained-log test.
 
 ## Develop
 

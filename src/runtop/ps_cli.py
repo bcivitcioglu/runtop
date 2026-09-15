@@ -14,15 +14,15 @@ from runtop.data.models import DaemonState, TargetSnapshot, dumps_document
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="runtop ps", description=__doc__)
-    parser.add_argument("-a", "--all", action="store_true")
-    parser.add_argument("-t", "--target")
-    parser.add_argument("--contexts", action="store_true")
-    parser.add_argument("--no-contexts", action="store_true")
-    parser.add_argument("--images", action="store_true")
-    parser.add_argument("--stats", action="store_true")
-    parser.add_argument("--json", action="store_true")
-    parser.add_argument("--demo", action="store_true")
-    parser.add_argument("--snapshot")
+    parser.add_argument("-a", "--all", action="store_true", help="include non-running containers")
+    parser.add_argument("-t", "--target", help="select a target by key or name")
+    parser.add_argument("--contexts", action="store_true", help="include remote targets")
+    parser.add_argument("--no-contexts", action="store_true", help="skip context discovery in live mode")
+    parser.add_argument("--images", action="store_true", help="print images; JSON retains the snapshot schema")
+    parser.add_argument("--stats", action="store_true", help="request local CPU and memory samples")
+    parser.add_argument("--json", action="store_true", help="write snapshot JSON to standard output")
+    parser.add_argument("--demo", action="store_true", help="use bundled data without contacting engines")
+    parser.add_argument("--snapshot", help="read a saved snapshot file")
     return parser
 
 

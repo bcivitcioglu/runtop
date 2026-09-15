@@ -21,8 +21,10 @@ from runtop.data.recording import MIB, Record, RecordingPolicy, search, usage
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="runtop logs", description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
-    for command in ("record", "export", "search", "status"):
-        s = sub.add_parser(command)
+    descriptions = {"record": "follow logs into a bounded archive", "export": "save a finite recent tail",
+                    "search": "find literal text in saved archives", "status": "show archive file count and bytes"}
+    for command, description in descriptions.items():
+        s = sub.add_parser(command, help=description, description=description)
         s.add_argument("--directory", required=True, type=Path, help="user-selected archive folder")
         if command in ("search", "status"):
             s.add_argument("--json", action="store_true", help="machine-readable output")
@@ -37,7 +39,7 @@ def parser() -> argparse.ArgumentParser:
             s.add_argument("--target", required=True, help="target key, e.g. lima:docker")
             scope = s.add_mutually_exclusive_group(required=True)
             scope.add_argument("--container", action="append", default=[], help="ID or name; repeat for several")
-            scope.add_argument("--project", help="existing Compose project")
+            scope.add_argument("--project", help="existing project name")
             s.add_argument("--max-mib", type=int, default=64, help="total archive budget")
             s.add_argument("--file-mib", type=int, default=8, help="rotate at this file size")
             s.add_argument("--keep-days", type=float, default=7)

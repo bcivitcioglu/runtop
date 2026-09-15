@@ -22,6 +22,7 @@ jobs:
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y musl-tools
       - run: python3 scripts/check_version.py rust "${GITHUB_REF_NAME#rs/v}"
+      - run: python3 scripts/build_docs.py --check
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo test --locked

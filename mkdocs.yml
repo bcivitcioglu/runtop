@@ -1,0 +1,24 @@
+site_name: runtop
+site_description: A terminal workspace for containers and their machines.
+site_url: https://bcivitcioglu.github.io/runtop/
+repo_url: https://github.com/bcivitcioglu/runtop
+edit_uri: ''
+docs_dir: .local/site-docs
+site_dir: .local/site
+strict: true
+theme:
+  name: mkdocs
+  custom_dir: site_theme
+  color_mode: auto
+  user_color_mode_toggle: true
+  nav_style: dark
+nav:
+  - Overview: index.md
+  - Install and update: install.md
+  - CLI reference: cli.md
+  - Agents and automation: agents.md
+  - Preferences: preferences.md
+  - Performance: performance.md
+  - Data contract: contract.md
+plugins:
+  - search
