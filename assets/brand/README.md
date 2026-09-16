@@ -2,8 +2,9 @@
 
 The runtop mark, Tessera, is four rounded tiles set as a diamond. The top tile is
 filled, like the `●` runtop shows beside a running machine. The other three are
-open, like `○`. Every file here is plain vector paths: no text elements, fonts,
-gradients or embedded images.
+open, like `○`. Every logo file here is plain vector paths: no text elements, fonts,
+gradients or embedded images. The social preview card is the one exception: it sets
+two lines of supporting text in a system sans, and ships rendered as a PNG.
 
 ## Files
 
@@ -17,6 +18,7 @@ gradients or embedded images.
 | `logo-lite.svg`, `logo-lite-on-light.svg`, `logo-lite-on-dark.svg` | The runtop lite lockup |
 | `favicon.svg`, `favicon-16.png`, `favicon-32.png` | Favicon: the mark on a sage tile |
 | `icon-512.png` | Avatar and app icon, the same sage tile |
+| `social-preview.svg`, `social-preview.png` | 1280×640 sharing card for GitHub, chat unfurls and `og:image` |
 
 Images cannot inherit `currentColor`. In a README, or anywhere the file is loaded
 as an image, use the fixed-color files. For GitHub, switch them by theme:
@@ -76,3 +78,22 @@ Measured WCAG 2.1 contrast:
 - Do not stack the mark above the wordmark. Square spaces use the mark alone.
 - The smallest size is 16 px.
 - In a terminal, a title bar shows `◆` as the mark's one-character form.
+
+## Social preview
+
+`social-preview.png` is the card that appears when a runtop link is unfurled. It is
+1280×640, the 2:1 size GitHub renders best, and stays well under GitHub's 1 MB limit.
+The docs site serves it as `og:image`; GitHub takes it from
+**Settings → General → Social preview → Upload an image**, which is a repository
+setting rather than a file in the tree.
+
+Rebuild it after any change to the mark, the wordmark or the tagline:
+
+```sh
+python3 scripts/build_social.py          # dark card, the committed one
+python3 scripts/build_social.py --theme light --out /tmp --name social-light
+```
+
+The card needs `rsvg-convert`. Its two text lines ask for Avenir Next and fall back
+through Helvetica Neue, Helvetica and Arial, so a rebuild on another machine can set
+them in a different face; the committed PNG is what everything actually loads.

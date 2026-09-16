@@ -6,7 +6,7 @@ root=Path(sys.argv[1])
 assert (root/'manual.json').is_file()
 assert (root/'llms.txt').is_file()
 for asset in ('assets/brand/favicon.svg', 'assets/brand/favicon-32.png', 'assets/brand/icon-512.png',
-              'assets/brand/logo-on-dark.svg', 'css/runtop.css'):
+              'assets/brand/logo-on-dark.svg', 'assets/brand/social-preview.png', 'css/runtop.css'):
     assert (root/asset).is_file(), f'missing site asset: {asset}'
 index=(root/'index.html').read_text()
 assert 'assets/brand/favicon.svg' in index and 'assets/brand/logo-on-dark.svg' in index, 'brand missing from site header'

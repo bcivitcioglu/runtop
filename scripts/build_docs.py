@@ -17,7 +17,7 @@ PUBLIC = [
 ]
 IMAGES = ['assets/runtop/demo.gif', 'assets/rt/glance.gif', 'assets/runtop/archives.png',
           'assets/brand/logo-on-dark.svg', 'assets/brand/favicon.svg', 'assets/brand/favicon-32.png',
-          'assets/brand/icon-512.png']
+          'assets/brand/icon-512.png', 'assets/brand/social-preview.png']
 # The README opens with a themed logo lockup for GitHub. The site header and the offline
 # manual carry the name as a plain heading instead.
 LOGO_HEADING = re.compile(r'\A<h1>\s*<picture>.*?</picture>\s*</h1>\s*', re.S)
