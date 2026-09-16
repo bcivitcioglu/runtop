@@ -1,85 +1,64 @@
-/* runtop documentation: stone neutrals and sage, matching assets/brand. */
-
-:root,
-[data-bs-theme="light"] {
-  --bs-body-bg: #fafaf9;
-  --bs-body-bg-rgb: 250, 250, 249;
-  --bs-body-color: #292524;
-  --bs-body-color-rgb: 41, 37, 36;
-  --bs-emphasis-color: #1c1917;
-  --bs-secondary-color: rgba(68, 64, 60, 0.85);
-  --bs-secondary-bg-subtle: #f5f5f4;
-  --bs-secondary-border-subtle: #e7e5e4;
-  --bs-tertiary-bg: #f5f5f4;
-  --bs-border-color: #e7e5e4;
-  --bs-link-color: #4f5f51;
-  --bs-link-color-rgb: 79, 95, 81;
-  --bs-link-hover-color: #3b473d;
-  --bs-link-hover-color-rgb: 59, 71, 61;
-  --bs-code-color: #4f5f51;
+/* Neutral surfaces and restrained sage accents; preserve the original brand assets. */
+:root {
+  --md-text-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --md-code-font: SFMono-Regular, Consolas, monospace;
+  --md-primary-fg-color: #171b24;
+  --md-primary-fg-color--light: #252c3a;
+  --md-primary-fg-color--dark: #10141c;
+  --md-primary-bg-color: #ffffff;
+  --md-primary-bg-color--light: #cbd5e1;
 }
 
-[data-bs-theme="dark"] {
-  --bs-body-bg: #1c1917;
-  --bs-body-bg-rgb: 28, 25, 23;
-  --bs-body-color: #e7e5e4;
-  --bs-body-color-rgb: 231, 229, 228;
-  --bs-emphasis-color: #fafaf9;
-  --bs-secondary-color: rgba(214, 211, 209, 0.75);
-  --bs-secondary-bg-subtle: #292524;
-  --bs-secondary-border-subtle: #44403c;
-  --bs-tertiary-bg: #292524;
-  --bs-border-color: #44403c;
-  --bs-link-color: #a8c4a8;
-  --bs-link-color-rgb: 168, 196, 168;
-  --bs-link-hover-color: #c6d9c6;
-  --bs-link-hover-color-rgb: 198, 217, 198;
-  --bs-code-color: #a8c4a8;
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #ffffff;
+  --md-default-fg-color: #263244;
+  --md-default-fg-color--light: #526174;
+  --md-typeset-a-color: #4f6552;
+  --md-accent-fg-color: #4f6552;
+  --md-accent-fg-color--transparent: #5f71611a;
+  --md-code-bg-color: #f3f5f8;
 }
 
-body::before {
-  background: var(--bs-body-bg);
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #141820;
+  --md-default-fg-color: #e2e8f0;
+  --md-default-fg-color--light: #a6b3c5;
+  --md-typeset-a-color: #a8c4a8;
+  --md-accent-fg-color: #a8c4a8;
+  --md-accent-fg-color--transparent: #87a0871a;
+  --md-code-bg-color: #1d2430;
+  --md-code-fg-color: #e2e8f0;
+  --md-footer-bg-color: #10141c;
+  --md-footer-bg-color--dark: #10141c;
 }
 
-.navbar {
-  background-color: #1c1917 !important;
-  background-image: none !important;
-  border-bottom: 1px solid #292524;
-}
-
-.navbar .navbar-brand img {
+.md-header__button.md-logo {
   display: block;
+}
+
+.md-header__button[for="__drawer"] {
+  order: -1;
+}
+
+.md-header__button.md-logo img {
   width: auto;
-  height: 28px;
+  height: 1.5rem;
 }
 
-.navbar .nav-link {
-  color: #d6d3d1;
+.md-header__topic:first-child {
+  display: none;
 }
 
-.navbar .nav-link:hover,
-.navbar .nav-link:focus-visible,
-.navbar .nav-link.active {
-  color: #fafaf9;
+/* The drawer has a light surface in light mode, so its lockup needs dark ink. */
+[data-md-color-scheme="default"] .md-nav__title .md-logo img {
+  filter: brightness(0.25);
 }
 
-.navbar .nav-link.active {
-  box-shadow: inset 0 -2px 0 #87a087;
+.md-nav__title .md-logo img {
+  width: auto;
+  max-width: 100%;
 }
 
-.dropdown-menu {
-  --bs-dropdown-link-active-bg: #5f7161;
-}
-
-pre code,
-code {
-  font-family: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-}
-
-hr {
-  border-top-color: var(--bs-border-color);
-}
-
-blockquote {
-  border-left-color: var(--bs-border-color);
+.md-typeset img {
+  border-radius: 0.4rem;
 }

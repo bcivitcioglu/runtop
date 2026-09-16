@@ -2,16 +2,42 @@ site_name: runtop
 site_description: A terminal workspace for containers and their machines.
 site_url: https://bcivitcioglu.github.io/runtop/
 repo_url: https://github.com/bcivitcioglu/runtop
+repo_name: bcivitcioglu/runtop
 edit_uri: ''
 docs_dir: .local/site-docs
 site_dir: .local/site
 strict: true
 theme:
-  name: mkdocs
+  name: material
   custom_dir: site_theme
-  color_mode: auto
-  user_color_mode_toggle: true
-  nav_style: dark
+  logo: assets/brand/logo-on-dark.svg
+  favicon: assets/brand/favicon.svg
+  font: false
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - toc.follow
 nav:
   - Overview: index.md
   - Install and update: install.md
@@ -22,3 +48,16 @@ nav:
   - Data contract: contract.md
 plugins:
   - search
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+extra_css:
+  - css/runtop.css
+extra:
+  generator: false
+copyright: runtop · A terminal workspace for containers and their machines.

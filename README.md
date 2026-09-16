@@ -5,8 +5,21 @@
   </picture>
 </h1>
 
+<!-- badges:start -->
+[![CI](https://github.com/bcivitcioglu/runtop/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/bcivitcioglu/runtop/actions/workflows/ci.yml)
+[![Docs](https://github.com/bcivitcioglu/runtop/actions/workflows/docs.yml/badge.svg?branch=master)](https://bcivitcioglu.github.io/runtop/)
+[![PyPI](https://img.shields.io/pypi/v/runtop?label=full&color=5f7161)](https://pypi.org/project/runtop/)
+[![Crates.io](https://img.shields.io/crates/v/runtop?label=lite&color=5f7161)](https://crates.io/crates/runtop)
+[![License: MIT](https://img.shields.io/badge/license-MIT-64748b)](LICENSE)
+<!-- badges:end -->
+
 A terminal workspace for containers and their machines.
 MIT licensed for personal and commercial use.
+
+**[Documentation](https://bcivitcioglu.github.io/runtop/)** ·
+[Install](https://bcivitcioglu.github.io/runtop/install/) ·
+[CLI reference](https://bcivitcioglu.github.io/runtop/cli/) ·
+[Agent guide](https://bcivitcioglu.github.io/runtop/agents/)
 
 ![Full workspace](assets/runtop/demo.gif)
 
@@ -15,8 +28,8 @@ project logs, archive recording, search, and mouse-driven workspace controls.
 Choose **lite** for a compact screen, fast startup, and a small standalone executable.
 Both editions work with existing local engines and read-only remote contexts.
 
-Documentation is available [online](https://bcivitcioglu.github.io/runtop/) and
-inside either edition: `runtop docs`, `rt docs agents`, or `runtop docs --json`.
+The complete manual is also available offline in either edition: `runtop docs`,
+`rt docs agents`, or `runtop docs --json` for structured agent input.
 
 ## Install
 
@@ -156,3 +169,7 @@ cargo build --locked --release
 Both editions share normalization fixtures. Interface recordings use synthetic
 `--demo` data. Local runtime workloads and development measurements are kept
 outside distributed packages.
+
+To update the website and bundled manual, edit the public Markdown pages and run
+`uv run python scripts/build_docs.py --site`. See the [documentation guide](docs/README.md)
+for local preview and validation; the site deploys automatically after a push to `master`.

@@ -21,6 +21,7 @@ IMAGES = ['assets/runtop/demo.gif', 'assets/rt/glance.gif', 'assets/runtop/archi
 # The README opens with a themed logo lockup for GitHub. The site header and the offline
 # manual carry the name as a plain heading instead.
 LOGO_HEADING = re.compile(r'\A<h1>\s*<picture>.*?</picture>\s*</h1>\s*', re.S)
+BADGES = re.compile(r'<!-- badges:start -->.*?<!-- badges:end -->\s*', re.S)
 SITE = 'https://bcivitcioglu.github.io/runtop/'
 REPO = 'https://github.com/bcivitcioglu/runtop/blob/master/'
 STAGE = ROOT / '.local/site-docs'
@@ -34,7 +35,7 @@ def main():
     mapping = {str((ROOT/source).resolve()): output for _,source,output in PUBLIC}
     topics=[]; pages={}
     for key, source, output in PUBLIC:
-        original = LOGO_HEADING.sub('# runtop\n\n', (ROOT/source).read_text())
+        original = BADGES.sub('', LOGO_HEADING.sub('# runtop\n\n', (ROOT/source).read_text()))
         def link(match, offline=False):
             label, href = match.groups()
             if '://' in href or href.startswith('#'):

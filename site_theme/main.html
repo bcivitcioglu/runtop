@@ -1,27 +1,10 @@
 {% extends "base.html" %}
 
-{%- block site_meta %}
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  {% if page and page.is_homepage %}<meta name="description" content="{{ config.site_description }}">{% endif %}
-  {% if page and page.canonical_url %}<link rel="canonical" href="{{ page.canonical_url }}">{% endif %}
-  <link rel="icon" type="image/svg+xml" href="{{ 'assets/brand/favicon.svg'|url }}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{{ 'assets/brand/favicon-32.png'|url }}">
-  <link rel="apple-touch-icon" href="{{ 'assets/brand/icon-512.png'|url }}">
-  <meta name="theme-color" content="#1c1917">
+{% block extrahead %}
+  {{ super() }}
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ 'assets/brand/favicon-32.png' | url }}">
+  <link rel="apple-touch-icon" href="{{ 'assets/brand/icon-512.png' | url }}">
   <meta property="og:title" content="{% if page and page.title and not page.is_homepage %}{{ page.title }} - {% endif %}{{ config.site_name }}">
   <meta property="og:description" content="{{ config.site_description }}">
   <meta property="og:image" content="{{ config.site_url }}assets/brand/icon-512.png">
-{%- endblock %}
-
-{%- block styles %}
-  {{ super() }}
-  <link href="{{ 'css/runtop.css'|url }}" rel="stylesheet">
-{%- endblock %}
-
-{%- block site_name %}
-  <a class="navbar-brand" href="{{ nav.homepage.url|url }}"><img src="{{ 'assets/brand/logo-on-dark.svg'|url }}" alt="{{ config.site_name }}" width="125" height="28"></a>
-{%- endblock %}
-
-{% block footer %}<hr><p>runtop · A terminal workspace for containers and their machines.</p>{% endblock %}
+{% endblock %}
