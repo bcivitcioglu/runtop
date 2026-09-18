@@ -21,10 +21,11 @@ from textual.widgets import Button, ContentSwitcher, Static, TabbedContent, TabP
 from typing_extensions import override
 
 from runtop.appref import runtop_app
-from runtop.data.backend import InspectBackend, LogsBackend
+from runtop.data.backend import InspectBackend, LogsBackend, VitalsBackend
 from runtop.data.engine import LogLine
-from runtop.data.format import human_bytes, human_bytes_long, percent, tilde
-from runtop.data.models import Container, DaemonState, Image, TargetKind, TargetSnapshot
+from runtop.data.format import human_bytes, human_bytes_long, human_uptime, percent, tilde
+from runtop.data.guest import GuestVitals
+from runtop.data.models import Container, DaemonState, Image, Target, TargetKind, TargetSnapshot
 from runtop.data.wire import ContainerInspect, EndpointSettings, InspectHostConfig, InspectNetworkSettings
 from runtop.state.actions import REGISTRY, ActionSpec, Disabled, Subject
 from runtop.state.viewmodel import Group, display_name
@@ -309,6 +310,8 @@ class DetailPane(Vertical):
         self._inspect_key: str | None = None
         self._inspect: ContainerInspect | None = None
         self._inspect_error: str | None = None
+        self._vitals: GuestVitals | None = None
+        self._vitals_key: str | None = None
 
     @property
     def lapp(self) -> RuntopApp:
@@ -334,6 +337,7 @@ class DetailPane(Vertical):
                 yield Card(id="mv-head")
                 yield ActionBar("machine", id="mv-actions")
                 yield Card(id="mv-facts")
+                yield Card(id="mv-vitals")
             with VerticalScroll(id="dv-none", classes="dv-scroll"):
                 yield Card(id="nv-text")
 
@@ -658,9 +662,96 @@ class DetailPane(Vertical):
             rows.append(("docker", Text(snap.error or "unreachable", style=facts.s("bad"))))
         elif snap.state is DaemonState.NO_DOCKER_SOCKET:
             rows.append(("docker", Text("no socket", style=facts.s("warn"))))
+            rows.append(("note", Text("nothing listens there; Docker may still run inside the VM",
+                                      style=facts.s("muted"))))
         elif snap.state is DaemonState.LOADING:
             rows.append(("docker", Text("connecting…", style=facts.s("muted"))))
         facts.update(facts.facts(rows))
+        self._show_vitals(t)
+
+    # -- guest vitals
+
+    def _show_vitals(self, t: Target) -> None:
+        """Guest-side CPU, memory, disk and top processes: what the VM does without Docker."""
+        card = self.query_one("#mv-vitals", Card)
+        backend = self.lapp.backend
+        running = t.vm is None or t.vm.running
+        if t.kind is not TargetKind.LIMA or not running or not isinstance(backend, VitalsBackend):
+            card.display = False
+            self._vitals_key = None
+            return
+        card.display = True
+        if t.key != self._vitals_key:
+            self._vitals_key = t.key
+            self._vitals = backend.cached_vitals(t)
+        self._load_vitals(t.key, t)  # throttled inside the probe; a re-render does not re-probe
+        self._render_vitals()
+
+    def _render_vitals(self) -> None:
+        card = self.query_one("#mv-vitals", Card)
+        vitals = self._vitals
+        if vitals is None:
+            card.update(Text("reading guest…", style=card.s("muted")))
+            return
+        if vitals.error:
+            card.update(Text(f"guest unavailable: {vitals.error}", style=card.s("warn")))
+            return
+        if vitals.empty:
+            card.update(Text("guest reported nothing", style=card.s("muted")))
+            return
+        card.update(RichGroup(*self._vitals_blocks(card, vitals)))
+
+    def _vitals_blocks(self, card: Card, v: GuestVitals) -> list[RenderableType]:
+        rows: list[tuple[str, RenderableType]] = []
+        if v.cpu_percent is not None:
+            rows.append(("cpu", Text.assemble((percent(v.cpu_percent), card.s("title")),
+                                              ("  guest-wide", card.s("muted")))))
+        elif v.cpu is not None:
+            # /proc/stat is cumulative: the first probe is only a baseline. Hold the row so
+            # the pane does not reflow when the rate arrives on the next one.
+            rows.append(("cpu", Text("measuring…", style=card.s("muted"))))
+        if v.load is not None:
+            one, five, fifteen = v.load
+            cpus = self.subject.snapshot.target.vm.cpus if (self.subject.snapshot
+                                                            and self.subject.snapshot.target.vm) else 0
+            tone = "bad" if cpus and one > cpus else "warn" if cpus and one > cpus * 0.7 else "ok"
+            load = Text(f"{one:.2f}", style=card.s(tone))
+            load.append(f"  {five:.2f}  {fifteen:.2f}", card.s("muted"))
+            rows.append(("load", load))
+        if v.mem_total_bytes and v.mem_used_bytes is not None:
+            rows.append(("mem use", card.meter(v.mem_used_bytes, v.mem_total_bytes, 18)))
+            rows.append(("", Text(f"{human_bytes_long(v.mem_used_bytes)} of "
+                                  f"{human_bytes_long(v.mem_total_bytes)}", style=card.s("muted"))))
+        if v.disk_total_bytes and v.disk_used_bytes is not None:
+            rows.append(("guest fs", card.meter(v.disk_used_bytes, v.disk_total_bytes, 18)))
+            rows.append(("", Text(f"{human_bytes_long(v.disk_used_bytes)} of "
+                                  f"{human_bytes_long(v.disk_total_bytes)}", style=card.s("muted"))))
+        if v.uptime_seconds is not None:
+            rows.append(("uptime", human_uptime(v.uptime_seconds)))
+        blocks: list[RenderableType] = [Text("GUEST", style=card.s("title")), card.facts(rows)]
+        if v.procs:
+            table = Table.grid(padding=(0, 1), expand=True)
+            table.add_column(justify="right", width=6, no_wrap=True)
+            table.add_column(ratio=1, no_wrap=True, overflow="ellipsis")
+            for p in v.procs:
+                table.add_row(Text(f"{p.cpu_percent:.1f}%", style=card.s("key")), Text(p.command))
+            blocks += [Text(""), Text("TOP PROCESSES", style=card.s("title")), table,
+                       Text("cpu share since each process started", style=card.s("muted"))]
+        return blocks
+
+    @work(group="vitals", exclusive=True, exit_on_error=False)
+    async def _load_vitals(self, key: str, t: Target) -> None:
+        backend = self.lapp.backend
+        if not isinstance(backend, VitalsBackend):
+            return
+        try:
+            vitals = await backend.vitals(t)
+        except Exception as e:
+            vitals = GuestVitals(error=str(e).strip() or type(e).__name__)
+        if key == self._vitals_key and vitals is not None and vitals != self._vitals:
+            self._vitals = vitals
+            if self.subject.kind == "target":
+                self._render_vitals()
 
     def _show_none(self) -> None:
         card = self.query_one("#nv-text", Card)

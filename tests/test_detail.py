@@ -10,8 +10,9 @@ from textual.pilot import Pilot
 from typing_extensions import override
 
 from runtop.app import RuntopApp
-from runtop.data.backend import LiveBackend
+from runtop.data.backend import FixtureBackend, LiveBackend
 from runtop.data.engine import LogLine
+from runtop.data.guest import CpuSample, GuestProc, GuestVitals
 from runtop.data.models import Container, DaemonState, Target, TargetKind
 from runtop.data.remote import RunResult
 from runtop.screens.overlay import DetailOverlay
@@ -203,6 +204,78 @@ async def test_group_image_and_machine_cards() -> None:
         await settle(pilot)
         text = screen_text(app)
         assert "IMAGE" in text and "mysql:8.4" in text and "layers may be shared" in text
+
+
+class VitalsFixture(FixtureBackend):
+    """Fixtures plus guest vitals: in production only :class:`LiveBackend` can probe a guest."""
+
+    def __init__(self, vitals: GuestVitals) -> None:
+        super().__init__(jitter=False)
+        self._vitals = vitals
+
+    async def vitals(self, target: Target) -> GuestVitals | None:
+        return self._vitals if target.kind is TargetKind.LIMA else None
+
+    def cached_vitals(self, target: Target) -> GuestVitals | None:
+        return None
+
+
+BUSY = GuestVitals(
+    uptime_seconds=11220.0, load=(3.48, 2.90, 1.62), cpu=CpuSample(busy=1, total=2), cpu_percent=87.5,
+    mem_used_bytes=784 << 20, mem_total_bytes=6 << 30, disk_used_bytes=10 << 30, disk_total_bytes=60 << 30,
+    procs=(GuestProc(55.5, 2.0, "Runner.Worker spawnclient"), GuestProc(1.0, 0.5, "lima-guestagent daemon")),
+)
+
+
+async def machine_pane_text(backend: FixtureBackend) -> str:
+    app = make_app(backend)
+    async with app.run_test(size=SIZE) as pilot:
+        await ready(pilot, app)
+        await pilot.press("shift+tab")
+        await settle(pilot)
+        assert await wait_for(pilot, lambda: "GUEST" in screen_text(app) or "guest" in screen_text(app))
+        return screen_text(app)
+
+
+async def test_machine_pane_shows_guest_vitals_without_docker() -> None:
+    text = await machine_pane_text(VitalsFixture(BUSY))
+    assert "GUEST" in text and "87.5%" in text  # guest-wide cpu, not a container's
+    assert "3.48" in text and "2.90" in text  # load 1/5/15
+    assert "3h 07m" in text  # uptime
+    assert "TOP PROCESSES" in text and "Runner.Worker spawnclient" in text
+    assert "55.5%" in text
+
+
+async def test_machine_pane_reports_an_unreachable_guest() -> None:
+    text = await machine_pane_text(VitalsFixture(GuestVitals(error="ssh: connect failed")))
+    assert "guest unavailable: ssh: connect failed" in text
+    assert "TOP PROCESSES" not in text
+
+
+async def test_machine_pane_holds_the_cpu_row_until_a_rate_exists() -> None:
+    baseline = GuestVitals(load=(0.1, 0.1, 0.1), cpu=CpuSample(busy=1, total=2))
+    text = await machine_pane_text(VitalsFixture(baseline))
+    assert "CPU" in text and "measuring…" in text  # no reflow when the rate lands
+
+
+async def test_machine_pane_has_no_guest_section_without_a_vitals_backend() -> None:
+    app = make_app()  # plain FixtureBackend: not a VitalsBackend
+    async with app.run_test(size=SIZE) as pilot:
+        await ready(pilot, app)
+        await pilot.press("shift+tab")
+        await settle(pilot)
+        text = screen_text(app)
+        assert "MACHINE" in text and "GUEST" not in text and "TOP PROCESSES" not in text
+
+
+async def test_no_socket_explains_itself() -> None:
+    """A socketless VM has no container tree to focus: the machine pane is what you get."""
+    app = make_app(target="lima:k3s")
+    async with app.run_test(size=SIZE) as pilot:
+        await settle(pilot)
+        assert await wait_for(pilot, lambda: "no socket" in screen_text(app))
+        text = screen_text(app)
+        assert "Docker may" in text and "still run inside the VM" in text
 
 
 async def test_narrow_i_opens_detail_overlay_and_escape_closes() -> None:

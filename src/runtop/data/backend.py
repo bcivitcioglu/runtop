@@ -18,6 +18,7 @@ from typing import Protocol, runtime_checkable
 
 from runtop.data import lima
 from runtop.data.engine import EngineClient, EngineError, LogLine
+from runtop.data.guest import GuestProbe, GuestVitals
 from runtop.data.models import (
     DaemonState,
     Target,
@@ -89,6 +90,15 @@ class StorageBackend(Protocol):
 
 
 @runtime_checkable
+class VitalsBackend(Protocol):
+    """Guest-level vitals for a VM, independent of whether it speaks Docker."""
+
+    async def vitals(self, target: Target) -> GuestVitals | None: ...
+
+    def cached_vitals(self, target: Target) -> GuestVitals | None: ...
+
+
+@runtime_checkable
 class ExecBackend(Protocol):
     def exec_argv(self, target: Target, cid: str) -> list[str] | None: ...
 
@@ -135,6 +145,7 @@ class LiveBackend:
         self._prev_cpu: dict[str, dict[str, CpuStats]] = {}
         self._disk = lima.DiskUsage()
         self._engines: dict[str, EngineClient] = {}
+        self._guest = GuestProbe(runner)
 
     async def discover(self) -> list[Target]:
         self.discovery_error = None
@@ -306,6 +317,19 @@ class LiveBackend:
                     task.cancel()
             await asyncio.gather(ps, images, return_exceptions=True)
 
+    # -- guest vitals
+
+    @staticmethod
+    def _probeable(target: Target) -> bool:
+        """Only Lima instances: ``limactl shell`` is the one guest entry runtop owns."""
+        return target.kind is TargetKind.LIMA and target.vm is not None and target.vm.running
+
+    async def vitals(self, target: Target) -> GuestVitals | None:
+        return await self._guest.measure(target.name) if self._probeable(target) else None
+
+    def cached_vitals(self, target: Target) -> GuestVitals | None:
+        return self._guest.cached(target.name) if self._probeable(target) else None
+
     async def storage(self, target: Target) -> DiskUsage:
         if target.is_remote:
             raise EngineError("storage inspection is available on local Docker sockets")
@@ -370,6 +394,7 @@ class LiveBackend:
         if res.returncode != 0:
             text = (res.stderr or res.stdout).decode(errors="replace").strip()
             raise lima.LimaError(text.splitlines()[-1] if text else f"limactl {verb} exited {res.returncode}")
+        self._guest.forget(target.name)  # counters restart with the VM
 
     async def vm_start(self, target: Target) -> None:
         await self._limactl("start", target)
@@ -421,5 +446,5 @@ def host_socket() -> str | None:
 from runtop.data.demo import FixtureBackend, find_demo_snapshot, jitter_stats  # noqa: E402  re-export
 
 __all__ = ["DetailBackend", "DiscoveryError", "ExecBackend", "FixtureBackend", "HistoryBackend", "InspectBackend",
-           "LiveBackend", "LogsBackend", "MemHistoryBackend", "MutableBackend", "ReadBackend", "StreamingBackend",
-           "find_demo_snapshot", "host_socket", "jitter_stats"]
+           "LiveBackend", "LogsBackend", "MemHistoryBackend", "MutableBackend", "ReadBackend", "StorageBackend",
+           "StreamingBackend", "VitalsBackend", "find_demo_snapshot", "host_socket", "jitter_stats"]

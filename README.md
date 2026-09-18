@@ -69,6 +69,10 @@ to lite. `--version` and `--edition` identify the executable you are running.
   output. `1`, `2`, `3` select Info, Logs, and Stats; `i` opens narrow-mode details.
 - Select a project and press `l` for combined logs. `s`, `x`, `R` start, stop, or
   restart the listed existing members after a preview. Filters limit membership.
+- Select a Lima machine to read its guest vitals: CPU, load average, memory, guest
+  filesystem, uptime, and the busiest processes. These are reported whether or not
+  the machine exposes a Docker socket, so a VM that builds or runs CI outside
+  containers is still legible.
 - `D` opens storage accounting on demand. Shared layers, unknown usage, and
   machine capacity are presented separately.
 - `ctrl+p` opens the command palette; `?` lists keys. Use the mouse to navigate,

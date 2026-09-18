@@ -84,6 +84,21 @@ def short_duration(text: str) -> str:
     return t
 
 
+def human_uptime(seconds: float | None, *, dash: str = "–") -> str:
+    """Elapsed seconds as ``42s`` ``18m`` ``3h 07m`` ``5d 02h``."""
+    if seconds is None or seconds < 0:
+        return dash
+    total = int(seconds)
+    if total < 60:
+        return f"{total}s"
+    minutes, hours, days = total // 60, total // 3600, total // 86400
+    if minutes < 60:
+        return f"{minutes}m"
+    if hours < 24:
+        return f"{hours}h {minutes % 60:02d}m"
+    return f"{days}d {hours % 24:02d}h"
+
+
 def short_status(state: str, status: str) -> str:
     """Compact status for list rows: ``up 2h``, ``exited 1``, ``created``."""
     m = _UP.match(status)

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 — 2026-09-18
+
+- Guest vitals for Lima machines: CPU, load average, memory, guest filesystem, uptime
+  and the busiest processes, reported whether or not the machine exposes a Docker socket.
+- Explain a missing Docker socket instead of only naming the state.
+
 ## 0.1.2 — 2026-09-15
 
 - Offline documentation in both editions, with topic selection and JSON for agents.
