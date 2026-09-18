@@ -14,7 +14,7 @@ from runtop.data.guest import (
 )
 from runtop.data.remote import RemoteError, RunResult
 
-# Captured from a Lima VM running a GitHub Actions job (mausa-ci), trimmed to 3 processes.
+# Captured from a Lima VM running a GitHub Actions job, trimmed to 3 processes.
 SAMPLE = """#up
 688.76 1584.82
 #load
@@ -86,8 +86,8 @@ def test_cpu_rate_is_a_share_of_the_elapsed_jiffies() -> None:
 
 
 def test_shell_argv_refuses_a_name_that_could_be_a_flag() -> None:
-    assert shell_argv("mausa-ci")[:2] == ["limactl", "shell"]
-    assert "mausa-ci" in shell_argv("mausa-ci")
+    assert shell_argv("build-ci")[:2] == ["limactl", "shell"]
+    assert "build-ci" in shell_argv("build-ci")
     for bad in ("--rm", "-x", "a/b", "..", ""):
         with pytest.raises(GuestError):
             shell_argv(bad)
